@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>业务答卷记录 · 办公设备租赁平台</title>
+<style>
+  :root { --bg:#f5f7fa; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0ea5e9; --ok:#16a34a; --err:#dc2626; --warn:#d97706; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+  .wrap { max-width:1080px; margin:0 auto; padding:24px 16px 60px; }
+  header.page { background:linear-gradient(135deg,#0f172a,#0ea5e9); color:#fff; border-radius:16px; padding:22px 24px; margin-bottom:18px; }
+  header.page h1 { margin:0 0 6px; font-size:20px; }
+  header.page p { margin:0; opacity:.9; font-size:13px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+  .stat { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .stat b { display:block; font-size:24px; }
+  .stat span { color:var(--muted); font-size:12px; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+  .toolbar input { flex:1; min-width:200px; padding:9px 12px; border:1px solid var(--line); border-radius:9px; font-size:14px; font-family:inherit; }
+  button { border:1px solid var(--line); background:#fff; padding:9px 14px; border-radius:9px; font-size:14px; cursor:pointer; font-family:inherit; }
+  button:hover { background:#f3f4f6; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px; }
+  .card .top { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:baseline; }
+  .card .who { font-weight:700; font-size:16px; }
+  .card .meta { color:var(--muted); font-size:12.5px; }
+  .card .meta a { color:var(--accent); text-decoration:none; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; background:#e0f2fe; color:#075985; margin-left:6px; }
+  .qa { margin-top:12px; border-top:1px dashed var(--line); padding-top:10px; display:none; }
+  .qa.open { display:block; }
+  .qa .row { display:grid; grid-template-columns:minmax(220px,42%) 1fr; gap:8px; padding:5px 0; border-bottom:1px dotted #f0f1f3; }
+  .qa .row .q { color:#374151; font-size:13px; }
+  .qa .row .a { font-size:13.5px; }
+  .qa .row .a ul { margin:0; padding-left:18px; }
+  .muted { color:var(--muted); }
+  .err { color:var(--err); }
+  .toggle { margin-top:10px; display:flex; gap:8px; }
+  button.del { color:var(--err); border-color:#fecaca; }
+  button.del:hover { background:#fef2f2; }
+  h2.sec { font-size:15px; margin:20px 0 10px; color:#111827; }
+  table.sum { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  table.sum th, table.sum td { text-align:left; padding:9px 12px; font-size:13.5px; border-bottom:1px solid var(--line); }
+  table.sum th { background:#f8fafc; color:var(--muted); font-weight:600; }
+  table.sum tr:last-child td { border-bottom:none; }
+  .pill { display:inline-block; padding:1px 8px; border-radius:999px; font-size:12px; }
+  .pill.done { background:#dcfce7; color:#166534; }
+  .pill.repeat { background:#fef9c3; color:#854d0e; }
+  @media (max-width:600px){ .qa .row{ grid-template-columns:1fr; gap:2px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>业务答卷记录</h1>
+    <p>数据来自 <span id="repoName"></span> 的 GitHub Issues（label: business-feedback）。仅供内部查看与导出。</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b id="s-total">–</b><span>提交份数</span></div>
+    <div class="stat"><b id="s-people">–</b><span>提交人数</span></div>
+    <div class="stat"><b id="s-latest">–</b><span>最新提交</span></div>
+  </div>
+
+  <h2 class="sec">提交完成情况</h2>
+  <div id="summary"></div>
+
+  <h2 class="sec">答卷明细</h2>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="按填写人 / 部门过滤…" />
+    <button id="btn-refresh">刷新</button>
+    <button id="btn-csv">导出 CSV</button>
+    <button id="btn-expand">展开全部</button>
+  </div>
+
+  <div id="list"></div>
+  <p id="status" class="muted"></p>
+</div>
+
+<script>
+const GITHUB_REPO = "gordon310/RentalPF";
+
+/* 中转服务地址：与 index.html 一致。配置后才能在线删除记录。 */
+const RELAY_URL = "";
+
+const QLABELS = {"1":"平台采用哪种经营形态？","2":"第一阶段用户重心？","3":"平台收入来源有哪些？","4":"是否支持「以租代购 / 租满即送」？","5":"平台覆盖哪些设备品类？","6":"商品是否按「唯一资产（一机一码 / SN）」管理？","7":"商品需要维护哪些属性？","8":"是否区分设备状态并做档期占用？","9":"计费周期支持哪些？","10":"租金计价模式？","11":"起租门槛？","12":"是否支持续租、提前退租、换机？","13":"运费 / 安装费如何计？","14":"交付方式支持哪些？","15":"是否管理耗材并支持定期补发？","16":"是否提供备用机？","17":"是否需要多仓 / 多门店库存调拨？","18":"注册与认证方式有哪些？","19":"是否区分个人账户与企业账户？","20":"企业客户是否需要签署合同？","21":"是否需要会员 / 等级 / 黑名单体系？","22":"C 端下单流程包含哪些节点？","23":"B 端下单是否走询价 / 销售跟单？","24":"是否需要电子签名与合同存档？","25":"企业订单是否需要内部审批？","26":"支付方式支持哪些？","27":"押金收取方式？","28":"押金退还规则？","29":"租金支付节奏？","30":"发票需求？","31":"是否设置损坏 / 丢失赔付标准并支持自动扣款？","32":"归还质检流程？","33":"损坏 / 丢失如何判定与赔付？","34":"逾期未还如何处理？","35":"是否接入外部信用 / 征信？","36":"商家入驻需要哪些审核材料？","37":"商家后台需要哪些功能？","38":"平台与商家如何分账结算？","39":"运营后台需要哪些模块？","40":"是否需要营销工具？","41":"客服与售后需要哪些能力？","42":"需要哪些角色与权限？","43":"终端形态？","44":"消息通知方式？","45":"数据看板 / 报表需要哪些指标？","46":"合规要求涉及哪些？","47":"是否需要与外部系统对接？","48":"请选出第一阶段最重要的 5 项。","49":"最希望系统优先解决什么？","50":"预期上线时间 / 里程碑？","51":"现有资源盘点？","52":"是否愿意参与后续测试与评审？","53":"如有特别重要的问题，可补充一句："};
+
+document.getElementById("repoName").textContent = GITHUB_REPO;
+let DATA = [];
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+function parseBody(body) {
+  const info = {}; const answers = {}; let cur = null;
+  (body || "").split("\n").forEach(raw => {
+    const line = raw.replace(/\s+$/, "");
+    if (!line) return;
+    const m4 = line.match(/^[-*]\s*(填写人姓名|所属部门\s*\/\s*岗位|填写日期)[：:]\s*(.+)$/);
+    if (m4) {
+      const key = { "填写人姓名": "submitter_name", "所属部门 / 岗位": "dept", "填写日期": "fill_date" }[m4[1]];
+      info[key] = m4[2].trim();
+      return;
+    }
+    // 标题式：**1. 题干** 或 ### 1. 题干
+    const mh = line.match(/^(?:\*\*|#{2,3}\s*)(\d+)\.\s/);
+    if (mh) { cur = "q" + mh[1]; if (!answers[cur]) answers[cur] = []; return; }
+    // 精简式：1. 作答（多选用 ；分隔）
+    if (!/^[-*#>]/.test(line)) {
+      const mq = line.match(/^(\d+)\.\s+(.+)$/);
+      if (mq) {
+        const k = "q" + mq[1]; const t = mq[2].trim();
+        answers[k] = t.indexOf("；") >= 0 ? t.split("；") : t;
+        return;
+      }
+    }
+    if (cur) {
+      const mc = line.match(/^\s*[-*]\s*\[(x| )\]\s*(.+)$/);
+      if (mc) { if (mc[1].toLowerCase() === "x") answers[cur].push(mc[2].trim()); return; }
+      const mb = line.match(/^\s*[-*]\s*(.+)$/);
+      if (mb) { answers[cur].push(mb[1].trim()); return; }
+      if (!/^(#|>|---|\*\*)/.test(line)) { answers[cur].push(line.trim()); return; }
+    }
+  });
+  Object.keys(answers).forEach(k => {
+    const arr = answers[k];
+    if (Array.isArray(arr)) {
+      if (arr.length === 1) answers[k] = arr[0];
+      else if (arr.length === 0) delete answers[k];
+    }
+  });
+  return { info, answers };
+}
+
+async function load() {
+  const status = document.getElementById("status");
+  status.className = "muted";
+  status.textContent = "加载中…";
+  try {
+    const url = "https://api.github.com/repos/" + GITHUB_REPO + "/issues?state=all&per_page=100&sort=created&direction=desc";
+    const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!res.ok) throw new Error("GitHub API " + res.status + (res.status === 403 ? "（可能触发未登录频率限制，稍后再试）" : ""));
+    const issues = (await res.json()).filter(i => !i.pull_request);
+    DATA = issues.map(it => ({ number: it.number, url: it.html_url, author: (it.user || {}).login || "", created: it.created_at, state: it.state, title: it.title, ...parseBody(it.body) }));
+    render();
+    status.textContent = "共 " + DATA.length + " 份（GitHub 未登录接口单次最多 100 份；更早的记录请用 Issues 页或导出脚本）。";
+  } catch (e) {
+    status.className = "err";
+    status.textContent = "加载失败：" + e.message;
+  }
+}
+
+function personKey(d) { return (d.info.submitter_name || d.author || "未署名").trim(); }
+
+function renderSummary() {
+  const groups = {};
+  DATA.forEach(d => {
+    const k = personKey(d);
+    if (!groups[k]) groups[k] = { name: k, authors: new Set(), count: 0, latest: "" };
+    const g = groups[k];
+    g.count++;
+    if (d.author) g.authors.add(d.author);
+    if (d.created > g.latest) g.latest = d.created;
+  });
+  const rows = Object.values(groups).sort((a, b) => b.latest.localeCompare(a.latest));
+  const el = document.getElementById("summary");
+  if (!rows.length) { el.innerHTML = '<p class="muted">暂无提交。</p>'; return; }
+  el.innerHTML = '<table class="sum"><thead><tr><th>填写人</th><th>GitHub 账号</th><th>提交次数</th><th>最近提交</th><th>状态</th></tr></thead><tbody>' +
+    rows.map(g => "<tr><td><b>" + esc(g.name) + "</b></td><td>" +
+      esc(Array.from(g.authors).join(", ") || "–") + "</td><td>" + g.count + "</td><td>" +
+      new Date(g.latest).toLocaleString("zh-CN", { hour12: false }) + "</td><td>" +
+      (g.count > 1 ? '<span class="pill repeat">已更新 ' + g.count + " 次</span>" : '<span class="pill done">已完成</span>') +
+      "</td></tr>").join("") + "</tbody></table>";
+}
+
+function render() {
+  renderSummary();
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const list = document.getElementById("list");
+  const rows = DATA.filter(d => {
+    if (!q) return true;
+    return personKey(d).toLowerCase().includes(q) || (d.info.dept || "").toLowerCase().includes(q);
+  });
+  const people = new Set(DATA.map(personKey));
+  document.getElementById("s-total").textContent = DATA.length;
+  document.getElementById("s-people").textContent = people.size;
+  document.getElementById("s-latest").textContent = DATA[0] ? new Date(DATA[0].created).toLocaleString("zh-CN", { hour12: false }) : "–";
+
+  if (!rows.length) {
+    list.innerHTML = '<p class="muted">' + (DATA.length ? "没有符合过滤条件的记录。" :
+      "还没有人提交。打开填写页 https://" + "gordon310.github.io/RentalPF/ 填完点「提交」后，这里就会出现记录。") + "</p>";
+    return;
+  }
+
+  list.innerHTML = rows.map(d => {
+    const qas = Object.keys(d.answers).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1))).map(k => {
+      const ans = d.answers[k];
+      const html = Array.isArray(ans) ? "<ul>" + ans.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul>" : esc(ans);
+      return '<div class="row"><div class="q">' + k.slice(1) + ". " + esc(QLABELS[k.slice(1)] || "") + '</div><div class="a">' + html + "</div></div>";
+    }).join("");
+    return '<div class="card">' +
+      '<div class="top"><div><span class="who">' + esc(personKey(d)) + '</span>' +
+      (d.info.dept ? '<span class="badge">' + esc(d.info.dept) + "</span>" : "") +
+      (d.state === "closed" ? '<span class="badge">已关闭</span>' : "") + "</div>" +
+      '<div class="meta">填写日期 ' + esc(d.info.fill_date || "–") +
+      " · GitHub @" + esc(d.author) + " · 提交 " + new Date(d.created).toLocaleString("zh-CN", { hour12: false }) +
+      ' · <a href="' + d.url + '" target="_blank" rel="noopener">打开 Issue #' + d.number + "</a></div></div>" +
+      '<div class="toggle"><button type="button" data-toggle="' + d.number + '">查看答卷</button>' +
+      '<button type="button" class="del" data-del="' + d.number + '">' + (RELAY_URL ? "删除" : "去 GitHub 删除") + '</button></div>' +
+      '<div class="qa" id="qa-' + d.number + '">' + qas + "</div>" +
+      "</div>";
+  }).join("");
+
+  list.querySelectorAll("[data-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const el = document.getElementById("qa-" + btn.dataset.toggle);
+      el.classList.toggle("open");
+      btn.textContent = el.classList.contains("open") ? "收起答卷" : "查看答卷";
+    });
+  });
+  list.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", () => deleteRecord(Number(btn.dataset.del), btn));
+  });
+}
+
+function setStatusText(msg) {
+  const el = document.getElementById("status");
+  el.className = "muted";
+  el.textContent = msg;
+}
+
+async function deleteRecord(number, btn) {
+  const rec = DATA.find(x => x.number === number);
+  if (!RELAY_URL) {
+    if (rec) window.open(rec.url, "_blank", "noopener");
+    return;
+  }
+  if (!confirm("确定删除记录 #" + number + "？此操作不可恢复。")) return;
+  const key = sessionStorage.getItem("rentalpf_admin_key") || prompt("请输入管理员口令：");
+  if (!key) return;
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = "删除中…";
+  try {
+    const r = await fetch(RELAY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-key": key },
+      body: JSON.stringify({ action: "delete", number: number }),
+    });
+    if (r.status === 401) { sessionStorage.removeItem("rentalpf_admin_key"); throw new Error("口令错误"); }
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    if (!d.ok) throw new Error("删除失败");
+    sessionStorage.setItem("rentalpf_admin_key", key);
+    DATA = DATA.filter(x => x.number !== number);
+    render();
+    setStatusText("已删除记录 #" + number);
+  } catch (e) {
+    btn.disabled = false; btn.textContent = old;
+    alert("删除失败：" + e.message);
+  }
+}
+
+function toCSV() {
+  const nums = Object.keys(QLABELS).sort((a, b) => a - b);
+  const header = ["issue", "链接", "填写人", "部门", "填写日期", "GitHub账号", "提交时间", "状态"].concat(nums.map(n => n + "_" + QLABELS[n]));
+  const escCsv = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const lines = [header.map(escCsv).join(",")];
+  DATA.forEach(d => {
+    const base = [d.number, d.url, personKey(d), d.info.dept || "", d.info.fill_date || "", d.author, d.created, d.state];
+    const ans = nums.map(n => { const v = d.answers["q" + n]; return Array.isArray(v) ? v.join("；") : (v || ""); });
+    lines.push(base.concat(ans).map(escCsv).join(","));
+  });
+  const blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "业务答卷_" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById("btn-refresh").addEventListener("click", load);
+document.getElementById("btn-csv").addEventListener("click", toCSV);
+document.getElementById("btn-expand").addEventListener("click", () => {
+  const anyClosed = Array.from(document.querySelectorAll(".qa")).some(el => !el.classList.contains("open"));
+  document.querySelectorAll(".qa").forEach(el => el.classList.toggle("open", anyClosed));
+  document.querySelectorAll("[data-toggle]").forEach(b => b.textContent = anyClosed ? "收起答卷" : "查看答卷");
+  document.getElementById("btn-expand").textContent = anyClosed ? "收起全部" : "展开全部";
+});
+document.getElementById("search").addEventListener("input", render);
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "rentalpf",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "办公设备租赁平台 · 业务需求收集与记录",
+  "scripts": {
+    "test": "node tests/logic.test.mjs",
+    "test:render": "node tests/render.mjs",
+    "test:all": "node tests/logic.test.mjs && node tests/render.mjs"
+  }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>感谢上传 · 办公设备租赁平台</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #e0f2fe, #f5f7fa); color: #1f2937;
+  }
+  .card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 18px;
+    padding: 48px 40px; max-width: 420px; width: calc(100% - 40px);
+    text-align: center; box-shadow: 0 12px 40px rgba(15,23,42,.10);
+  }
+  .icon {
+    width: 76px; height: 76px; margin: 0 auto 18px; border-radius: 50%;
+    background: #dcfce7; color: #16a34a; font-size: 42px; line-height: 76px;
+  }
+  h1 { margin: 0 0 10px; font-size: 26px; letter-spacing: 1px; }
+  p { margin: 0; color: #6b7280; font-size: 14px; }
+  .no { margin-top: 14px; color: #9ca3af; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✓</div>
+    <h1>感谢上传</h1>
+    <p>您的答卷已成功记录，可以关闭此页面了。</p>
+    <div class="no" id="ref"></div>
+  </div>
+  <script>
+    var no = new URLSearchParams(location.search).get("no");
+    if (no) document.getElementById("ref").textContent = "记录编号 #" + no;
+  </script>
+</body>
+</html>

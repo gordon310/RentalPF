@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>办公设备租赁平台 · 业务需求确认表 V1.0</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #0ea5e9;
+    --accent-ink: #ffffff;
+    --ok: #16a34a;
+    --warn: #d97706;
+    --err: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 120px; }
+  header.page {
+    background: linear-gradient(135deg, #0ea5e9, #4f46e5);
+    color: #fff; border-radius: 16px; padding: 28px 24px; margin-bottom: 20px;
+  }
+  header.page h1 { margin: 0 0 6px; font-size: 22px; }
+  header.page p { margin: 4px 0; opacity: .92; font-size: 14px; }
+  .four { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 14px; }
+  .four span { background: rgba(255,255,255,.16); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+  section.card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  }
+  section.card > h2 {
+    font-size: 16px; margin: 0 0 16px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--line); color: #111827;
+  }
+  .q { margin-bottom: 22px; }
+  .q:last-child { margin-bottom: 0; }
+  .q .title { font-weight: 600; margin-bottom: 4px; }
+  .q .desc { color: var(--muted); font-size: 13px; margin-bottom: 8px; white-space: pre-line; }
+  .q .req { color: var(--err); font-weight: 400; font-size: 12px; margin-left: 6px; }
+  .q .hint { color: var(--warn); font-size: 12px; margin-left: 6px; }
+  .opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+  label.opt {
+    display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 14px;
+    transition: border-color .15s, background .15s;
+  }
+  label.opt:hover { border-color: var(--accent); background: #f0f9ff; }
+  label.opt input { margin-top: 3px; accent-color: var(--accent); }
+  label.opt.checked { border-color: var(--accent); background: #e0f2fe; }
+  input[type="text"], input[type="date"], textarea {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #bae6fd;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-grid .full { grid-column: 1 / -1; }
+  .info-grid label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,.96);
+    border-top: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 10px;
+    justify-content: center; flex-wrap: wrap; backdrop-filter: blur(6px); z-index: 20;
+  }
+  button {
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    padding: 10px 16px; border-radius: 9px; font-size: 14px; cursor: pointer;
+    font-family: inherit; transition: background .15s, border-color .15s;
+  }
+  button:hover { background: #f3f4f6; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.primary:hover { background: #0284c7; }
+  #status { text-align: center; font-size: 13px; margin-top: 10px; min-height: 20px; }
+  #status.ok { color: var(--ok); }
+  #status.err { color: var(--err); }
+  footer.note { color: var(--muted); font-size: 12px; text-align: center; margin-top: 18px; }
+  @media (max-width: 560px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .four { grid-template-columns: 1fr; }
+  }
+  .done { position: fixed; inset: 0; background: rgba(15,23,42,.72); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+  .done[hidden] { display: none; }
+  .done-card { background: #fff; border-radius: 18px; padding: 36px 30px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+  .done-icon { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 34px; line-height: 64px; }
+  .done-card h2 { margin: 6px 0 8px; font-size: 22px; }
+  .done-card p { color: var(--muted); margin: 0 0 20px; }
+  .done-card button { padding: 10px 22px; }
+  @media print {
+    body { background: #fff; }
+    .bar, footer.note { display: none; }
+    section.card { box-shadow: none; break-inside: avoid; }
+    header.page { background: #0ea5e9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <h1>办公设备租赁平台 · 业务需求确认表 V1.0</h1>
+    <p>填写时间：约 12–15 分钟</p>
+    <p>本表用于确认平台业务模式、租赁流程、支付押金、交付归还与风控规则。带 <span style="color:#fca5a5">*</span> 为必填。</p>
+    <div class="four">
+      <span>① 平台形态与收入模式</span>
+      <span>② 设备品类与资产模型</span>
+      <span>③ 租期计费与押金结算</span>
+      <span>④ 交付归还与风控</span>
+    </div>
+  </header>
+
+  <form id="form" novalidate></form>
+  <div id="status" role="status" aria-live="polite"></div>
+  <footer class="note">提交后会以 GitHub Issue 形式留档，可追溯提交人与时间。</footer>
+</div>
+
+<div id="done" class="done" style="display:none">
+  <div class="done-card">
+    <div class="done-icon">✓</div>
+    <h2>提交成功，谢谢！</h2>
+    <p>您的答卷已记录，可以关闭此页面了。</p>
+    <button type="button" id="btn-done">知道了</button>
+  </div>
+</div>
+
+<div class="bar">
+  <button type="button" class="primary" id="btn-submit">提交</button>
+</div>
+
+<script>
+/* ============================================================
+   仓库信息（创建 GitHub 仓库后在 Settings 改动此处）
+   ============================================================ */
+const GITHUB_REPO = "gordon310/RentalPF";
+const ISSUE_LABEL = "business-feedback";
+
+/* 中转服务地址：留空则回退为「打开 GitHub 提交页」流程。
+   部署 Cloudflare Worker 后填入（见 relay/README.md）。 */
+const RELAY_URL = "";
+const FORM_KEY = "";
+
+/* ---------- 问卷数据模型（与 questionnaire.md 保持一致） ---------- */
+const SECTIONS = [
+  { title: "填写人信息", questions: [
+    { id: "submitter_name", type: "text", label: "填写人姓名", required: true, placeholder: "例：李四" },
+    { id: "dept", type: "text", label: "所属部门 / 岗位", required: false, placeholder: "例：运营部 / 产品经理" },
+    { id: "fill_date", type: "date", label: "填写日期", required: true },
+  ]},
+  { title: "一、平台定位与商业模式", questions: [
+    { id: "q1", num: 1, type: "single", label: "平台采用哪种经营形态？", required: true,
+      options: ["平台自营（自有设备出租）","商家入驻撮合（平台抽佣）","混合（自营 + 商家入驻）","暂未确定"] },
+    { id: "q2", num: 2, type: "single", label: "第一阶段用户重心？", required: true,
+      options: ["以企业客户（B 端）为主","以个人用户（C 端）为主","B 端、C 端并重","暂未确定"] },
+    { id: "q3", num: 3, type: "multi", label: "平台收入来源有哪些？", required: true, options: [
+      "租金差价","平台佣金","服务费（配送 / 安装 / 回收）","增值服务（耗材 / 维保 / 保险）",
+      "押金沉淀 / 租赁金融","广告与流量推广","其他" ]},
+    { id: "q4", num: 4, type: "single", label: "是否支持「以租代购 / 租满即送」？", required: true,
+      options: ["支持","后期再做","不支持"] },
+  ]},
+  { title: "二、设备品类与商品", questions: [
+    { id: "q5", num: 5, type: "multi", label: "平台覆盖哪些设备品类？", required: true, options: [
+      "打印机","复印机（含 A3）","打印耗材（墨盒 / 硒鼓 / 纸张）","投影仪","会议平板 / 触控一体机",
+      "视频会议设备（摄像头 / 全向麦）","笔记本电脑","台式机 / 一体机","显示器","平板（iPad 等）",
+      "扫码枪 / 条码设备","标签机","碎纸机 / 装订设备","服务器 / 网络设备","相机 / 直播设备","其他" ]},
+    { id: "q6", num: 6, type: "single", label: "商品是否按「唯一资产（一机一码 / SN 序列号）」管理？", required: true,
+      options: ["必须一机一码（可追溯每台设备）","按批次数量管理即可","混合（贵重设备一机一码，耗材按数量）"] },
+    { id: "q7", num: 7, type: "multi", label: "商品需要维护哪些属性？", required: true, options: [
+      "品牌","型号","成色","配置参数","序列号 SN","采购日期","所在仓库 / 网点","配件清单",
+      "实拍图","说明书 / 电子资料","日租金 / 月租金","押金","其他" ]},
+    { id: "q8", num: 8, type: "single", label: "是否区分设备状态（可租 / 在租 / 维修 / 报废）并做档期占用？", required: true,
+      options: ["必须，且按档期锁定库存","只记可用数量","不需要"] },
+  ]},
+  { title: "三、租期与计费", questions: [
+    { id: "q9", num: 9, type: "multi", label: "计费周期支持哪些？", required: true, options: [
+      "按小时","按天","按周","按月","按年","按合同期（一客一议）" ]},
+    { id: "q10", num: 10, type: "multi", label: "租金计价模式？", required: true, options: [
+      "固定单价","阶梯价（租期越长单价越低）","套餐（如月租包）","一客一议报价","其他" ]},
+    { id: "q11", num: 11, type: "single", label: "起租门槛？", required: true,
+      options: ["无起租（最短 1 天）","最短 1 周","最短 1 个月","按合同约定"] },
+    { id: "q12", num: 12, type: "multi", label: "是否支持续租、提前退租、换机？", required: true, options: [
+      "续租","提前退租（按比例退款）","换机（维修 / 升级）","都不支持" ]},
+    { id: "q13", num: 13, type: "single", label: "运费 / 安装费如何计？", required: true,
+      options: ["含在租金内","单列收取","按距离计算","免运费"] },
+  ]},
+  { title: "四、库存与交付", questions: [
+    { id: "q14", num: 14, type: "multi", label: "交付方式支持哪些？", required: true, options: [
+      "到店 / 网点自提","同城快递","上门配送 + 安装调试","客户寄回归还","上门回收" ]},
+    { id: "q15", num: 15, type: "single", label: "是否管理耗材（墨盒 / 纸张）并支持定期补发？", required: true,
+      options: ["需要（含耗材托管）","后期再做","不需要"] },
+    { id: "q16", num: 16, type: "single", label: "是否提供备用机？", required: true,
+      options: ["租赁期内免费提供备用机","收费提供备用机","不提供"] },
+    { id: "q17", num: 17, type: "single", label: "是否需要多仓 / 多门店库存调拨？", required: true,
+      options: ["需要","单仓即可","后期再做"] },
+  ]},
+  { title: "五、用户与账户", questions: [
+    { id: "q18", num: 18, type: "multi", label: "注册与认证方式有哪些？", required: true, options: [
+      "微信一键登录","手机号注册","个人实名认证","企业认证（营业执照）",
+      "信用免押（芝麻信用 / 微信支付分）","企业授信" ]},
+    { id: "q19", num: 19, type: "single", label: "是否区分个人账户与企业账户？", required: true,
+      options: ["必须区分","一套账号即可","暂不区分"] },
+    { id: "q20", num: 20, type: "single", label: "企业客户是否需要签署合同？", required: true,
+      options: ["需要电子合同（在线签署）","需要线下纸质合同","不需要"] },
+    { id: "q21", num: 21, type: "multi", label: "是否需要会员 / 等级 / 黑名单体系？", required: true, options: [
+      "会员等级","信用分","黑名单","都不需要" ]},
+  ]},
+  { title: "六、下单与合同流程", questions: [
+    { id: "q22", num: 22, type: "multi", label: "C 端下单流程包含哪些节点？", required: true, options: [
+      "选设备","选租期","填交付地址 / 取还方式","信用免押 / 授信","电子签约","支付",
+      "待交付","使用中","归还","结算 / 押金退还" ]},
+    { id: "q23", num: 23, type: "single", label: "B 端下单是否走询价 / 销售跟单？", required: true,
+      options: ["在线自主下单","提交需求由销售报价","两者都要"] },
+    { id: "q24", num: 24, type: "single", label: "是否需要电子签名与合同存档？", required: true,
+      options: ["需要","后期再做","不需要"] },
+    { id: "q25", num: 25, type: "single", label: "企业订单是否需要内部审批？", required: true,
+      options: ["需要企业内审批","不需要"] },
+  ]},
+  { title: "七、支付、押金与结算", questions: [
+    { id: "q26", num: 26, type: "multi", label: "支付方式支持哪些？", required: true, options: [
+      "微信支付","支付宝","对公转账","月结账期","授信额度","其他" ]},
+    { id: "q27", num: 27, type: "multi", label: "押金收取方式？", required: true, options: [
+      "全额押金","芝麻信用免押","微信支付分免押","企业授信免押","押金 + 保险" ]},
+    { id: "q28", num: 28, type: "single", label: "押金退还规则？", required: true,
+      options: ["归还验收后自动退还","人工确认后退还","按合同约定"] },
+    { id: "q29", num: 29, type: "single", label: "租金支付节奏？", required: true,
+      options: ["下单一次付清","首期 + 周期自动扣款","月结账单","按合同"] },
+    { id: "q30", num: 30, type: "multi", label: "发票需求？", required: true, options: [
+      "增值税普通发票","增值税专用发票","电子发票","需要开票","不需要" ]},
+    { id: "q31", num: 31, type: "single", label: "是否设置损坏 / 丢失赔付标准并支持自动扣款？", required: true,
+      options: ["需要（标准赔偿表 + 自动扣款）","需要标准，人工扣款","人工协商","不需要"] },
+  ]},
+  { title: "八、归还、验收与风控", questions: [
+    { id: "q32", num: 32, type: "multi", label: "归还质检流程？", required: true, options: [
+      "客户拍照 / 视频上传","快递签收即完成","到店 / 上门验收","需出具检测报告","其他" ]},
+    { id: "q33", num: 33, type: "multi", label: "损坏 / 丢失如何判定与赔付？", required: true, options: [
+      "按标准赔偿表","按市场价折旧","保险理赔","人工协商","其他" ]},
+    { id: "q34", num: 34, type: "multi", label: "逾期未还如何处理？", required: true, options: [
+      "自动续租计费","短信 / 电话催收","冻结押金","逾期罚金","加入黑名单","法律途径" ]},
+    { id: "q35", num: 35, type: "single", label: "是否接入外部信用 / 征信？", required: true,
+      options: ["接入芝麻信用 / 微信支付分","接入企业征信","仅内部黑名单","不需要"] },
+  ]},
+  { title: "九、商家端（若商家入驻）", questions: [
+    { id: "q36", num: 36, type: "multi", label: "商家入驻需要哪些审核材料？", required: true, options: [
+      "营业执照","法人实名","设备清单","保证金","平台协议签署","其他" ]},
+    { id: "q37", num: 37, type: "multi", label: "商家后台需要哪些功能？", required: true, options: [
+      "商品上架 / 编辑","库存与档期","接单发货","归还验收","结算对账","数据看板","客服工单" ]},
+    { id: "q38", num: 38, type: "single", label: "平台与商家如何分账结算？", required: true,
+      options: ["平台抽佣后分账","商家自主定价、平台收服务费","平台买断转租","暂未确定"] },
+  ]},
+  { title: "十、运营后台与管理", questions: [
+    { id: "q39", num: 39, type: "multi", label: "运营后台需要哪些模块？", required: true, options: [
+      "商品 / 库存 / 价格","订单 / 工单","用户 / 企业","商家管理","营销活动",
+      "财务对账","数据看板","权限与角色","内容审核" ]},
+    { id: "q40", num: 40, type: "multi", label: "是否需要营销工具？", required: true, options: [
+      "优惠券","满减 / 折扣","拼团 / 秒杀","会员套餐","推荐 / 分销","不需要" ]},
+    { id: "q41", num: 41, type: "multi", label: "客服与售后需要哪些能力？", required: true, options: [
+      "在线客服","工单系统","报修","投诉","知识库 FAQ","电话客服" ]},
+    { id: "q42", num: 42, type: "multi", label: "需要哪些角色与权限？", required: true, options: [
+      "超级管理员","运营","客服","财务","仓管","商家","只读" ]},
+  ]},
+  { title: "十一、技术与非功能", questions: [
+    { id: "q43", num: 43, type: "single", label: "终端形态？", required: true,
+      options: ["仅微信小程序","小程序 + H5","小程序 + App","小程序 + H5 + Web 管理后台"] },
+    { id: "q44", num: 44, type: "multi", label: "消息通知方式？", required: true, options: [
+      "微信订阅消息","短信","小程序站内信","电话","企业微信 / 钉钉","邮件" ]},
+    { id: "q45", num: 45, type: "multi", label: "数据看板 / 报表需要哪些指标？", required: true, options: [
+      "订单量 / GMV","设备出租率","设备周转率","收入 / 利润","逾期 / 坏账","客户画像" ]},
+    { id: "q46", num: 46, type: "multi", label: "合规要求涉及哪些？", required: true, options: [
+      "电子合同法务审核","隐私政策 / 个人信息保护","支付合规","发票合规","设备数据安全","其他" ]},
+    { id: "q47", num: 47, type: "multi", label: "是否需要与外部系统对接？", required: true, options: [
+      "ERP / 财务系统","企业微信 / 钉钉","物流快递","支付 / 信用平台","征信平台","不需要" ]},
+  ]},
+  { title: "十二、MVP 与优先级", questions: [
+    { id: "q48", num: 48, type: "multi", max: 5, label: "请选出第一阶段最重要的 5 项。", required: true, options: [
+      "设备选品与搜索","在线定价与计费","信用免押 / 押金","在线下单与电子合同","支付与发票",
+      "库存与档期管理","配送 / 安装 / 回收","归还质检与定损","商家入驻与后台","运营管理后台",
+      "数据看板","消息通知","企业账户与审批" ]},
+    { id: "q49", num: 49, type: "multi", max: 3, label: "最希望系统优先解决什么？", required: true, options: [
+      "报价与计费效率","押金 / 收款 / 对账","库存与档期混乱","合同与开票流程","交付 / 安装 / 回收调度",
+      "归还定损与赔付","逾期与坏账","客户与商家管理","数据不透明","暂时没有明显痛点" ]},
+    { id: "q50", num: 50, type: "single", label: "预期上线时间 / 里程碑？", required: true,
+      options: ["1 个月内","3 个月内","6 个月内","暂未确定"] },
+    { id: "q51", num: 51, type: "multi", label: "现有资源盘点？", required: true, options: [
+      "已有设备库存","已有仓库 / 网点","已有商家资源","已有企业客户","已有资金","基本从零开始" ]},
+    { id: "q52", num: 52, type: "single", label: "是否愿意参与后续测试与评审？", required: true,
+      options: ["愿意","可以偶尔参与","暂时不参与"] },
+    { id: "q53", num: 53, type: "text", label: "如有特别重要的问题，可补充一句：", required: false, placeholder: "选填" },
+  ]},
+];
+
+const MAX_HINTS = { q48: "最多选 5 项", q49: "最多选 3 项" };
+
+/* ---------- 渲染 ---------- */
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function buildQuestion(q) {
+  const hint = q.max ? '<span class="hint">' + MAX_HINTS[q.id] + "</span>" : "";
+  const req = q.required ? '<span class="req">*</span>' : "";
+  const title = '<div class="title">' + (q.num ? q.num + ". " : "") + esc(q.label) + req + hint + "</div>";
+  const desc = q.desc ? '<div class="desc">' + esc(q.desc) + "</div>" : "";
+
+  if (q.type === "text" || q.type === "date") {
+    return '<div class="q" data-qid="' + q.id + '">' + title +
+      '<input type="' + q.type + '" id="' + q.id + '" name="' + q.id + '"' +
+      (q.type === "text" ? ' placeholder="' + esc(q.placeholder || "") + '"' : "") + " /></div>";
+  }
+
+  const inputType = q.type === "multi" ? "checkbox" : "radio";
+  const opts = q.options.map((o, i) => {
+    const oid = q.id + "_" + i;
+    return '<label class="opt" for="' + oid + '">' +
+      '<input type="' + inputType + '" id="' + oid + '" name="' + q.id + '" value="' + esc(o) + '" />' +
+      "<span>" + esc(o) + "</span></label>";
+  }).join("");
+  return '<div class="q" data-qid="' + q.id + '">' + title + desc +
+    '<div class="opts">' + opts + "</div></div>";
+}
+
+function render() {
+  const form = document.getElementById("form");
+  form.innerHTML = SECTIONS.map(sec =>
+    '<section class="card"><h2>' + esc(sec.title) + "</h2>" +
+    sec.questions.map(buildQuestion).join("") + "</section>"
+  ).join("");
+
+  const d = new Date();
+  const today = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const dateEl = document.getElementById("fill_date");
+  if (dateEl) dateEl.value = today;
+
+  form.addEventListener("change", onChange);
+}
+
+function onChange(e) {
+  const el = e.target;
+  if (el.type === "checkbox" || el.type === "radio") {
+    const wrap = el.closest(".q");
+    const qid = wrap.dataset.qid;
+    const max = (SECTIONS.flatMap(s => s.questions).find(q => q.id === qid) || {}).max;
+    if (el.type === "checkbox" && max) {
+      const checked = wrap.querySelectorAll('input[type="checkbox"]:checked');
+      if (checked.length > max) {
+        el.checked = false;
+        setStatus("「" + (MAX_HINTS[qid] || ("最多选 " + max + " 项")) + "」，已取消多出的选择。", "err");
+      }
+    }
+    wrap.querySelectorAll("label.opt").forEach(lbl => {
+      const inp = lbl.querySelector("input");
+      lbl.classList.toggle("checked", inp.checked);
+    });
+  }
+}
+
+/* ---------- 收集 ---------- */
+function collect() {
+  const answers = {};
+  SECTIONS.flatMap(s => s.questions).forEach(q => {
+    if (q.type === "multi") {
+      answers[q.id] = Array.from(document.querySelectorAll('input[name="' + q.id + '"]:checked')).map(i => i.value);
+    } else if (q.type === "single") {
+      const c = document.querySelector('input[name="' + q.id + '"]:checked');
+      answers[q.id] = c ? c.value : "";
+    } else {
+      const el = document.getElementById(q.id);
+      answers[q.id] = el ? el.value.trim() : "";
+    }
+  });
+  return answers;
+}
+
+function validate(a) {
+  const missing = [];
+  SECTIONS.flatMap(s => s.questions).forEach(q => {
+    if (!q.required) return;
+    const v = a[q.id];
+    const empty = Array.isArray(v) ? v.length === 0 : !v;
+    if (empty) missing.push((q.num ? q.num + ". " : "") + q.label);
+  });
+  return missing;
+}
+
+/* ---------- 输出（精简：只列已选答案，控制 URL 长度） ---------- */
+function toMarkdown(a) {
+  const lines = [];
+  lines.push("- 填写人姓名：" + (a.submitter_name || ""));
+  lines.push("- 所属部门 / 岗位：" + (a.dept || ""));
+  lines.push("- 填写日期：" + (a.fill_date || ""));
+  lines.push("");
+  SECTIONS.forEach(sec => {
+    sec.questions.filter(q => q.id.startsWith("q")).forEach(q => {
+      const v = a[q.id];
+      if (q.type === "multi") {
+        const sel = v || [];
+        if (!sel.length) return;
+        lines.push(q.num + ". " + sel.join("；"));
+      } else {
+        if (!v) return;
+        lines.push(q.num + ". " + v);
+      }
+    });
+  });
+  return lines.join("\n");
+}
+
+function issueTitle(a) {
+  return "[业务答卷] " + (a.submitter_name || "未署名") + " / " + (a.fill_date || "");
+}
+
+function issueUrl(a) {
+  const title = issueTitle(a);
+  const body = toMarkdown(a);
+  const base = "https://github.com/" + GITHUB_REPO + "/issues/new";
+  const params = "title=" + encodeURIComponent(title) +
+    "&body=" + encodeURIComponent(body) +
+    "&labels=" + encodeURIComponent(ISSUE_LABEL);
+  return base + "?" + params;
+}
+
+function setStatus(msg, kind) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = kind || "";
+}
+
+/* ---------- 事件 ---------- */
+function onSubmit() {
+  const a = collect();
+  const missing = validate(a);
+  if (missing.length) {
+    setStatus("还有 " + missing.length + " 项必填未完成，例如：" + missing.slice(0, 3).join("；"), "err");
+    const first = document.querySelector('[data-qid="' + (missing[0].match(/^(\d+)\./) ? "q" + RegExp.$1 : "submitter_name") + '"]');
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  if (RELAY_URL) { submitViaRelay(a); return; }
+  const url = issueUrl(a);
+  if (url.length <= 7500) {
+    setStatus("已在新标签页打开 GitHub 提交页，请检查后点击 Submit new issue。", "ok");
+    window.open(url, "_blank", "noopener");
+    return;
+  }
+  const body = toMarkdown(a);
+  const done = () => {
+    setStatus("答案已复制。请在打开的 GitHub 页面填写标题（含姓名）并粘贴正文后提交。", "err");
+    window.open("https://github.com/" + GITHUB_REPO + "/issues/new", "_blank", "noopener");
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(body).then(done, () => fallbackCopy(body, done));
+  } else {
+    fallbackCopy(body, done);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function verifyIssue(number) {
+  for (let i = 0; i < 3; i++) {
+    try {
+      const r = await fetch("https://api.github.com/repos/" + GITHUB_REPO + "/issues/" + number,
+        { headers: { Accept: "application/vnd.github+json" } });
+      if (r.ok) return true;
+      if (r.status !== 404) return false;
+    } catch (e) { return false; }
+    await sleep(800);
+  }
+  return false;
+}
+
+async function submitViaRelay(a) {
+  const btn = document.getElementById("btn-submit");
+  btn.disabled = true;
+  setStatus("正在提交…", "");
+  const headers = { "Content-Type": "application/json" };
+  if (FORM_KEY) headers["x-form-key"] = FORM_KEY;
+  try {
+    const r = await fetch(RELAY_URL, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({ title: issueTitle(a), body: toMarkdown(a) })
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    if (!d || d.ok !== true) throw new Error("服务未确认创建");
+    let verified = d.verified;
+    if (verified !== true && d.number) verified = await verifyIssue(d.number);
+    if (!verified) throw new Error("记录校验未通过，请重试");
+    window.location.href = "thanks.html" + (d.number ? ("?no=" + d.number) : "");
+  } catch (e) {
+    btn.disabled = false;
+    setStatus("提交失败：" + e.message + "。请重试，或联系管理员。", "err");
+  }
+}
+
+function fallbackCopy(text, done) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); done(); }
+  catch (e) { setStatus("复制失败，请手动选择文本。", "err"); }
+  document.body.removeChild(ta);
+}
+
+render();
+document.getElementById("btn-submit").addEventListener("click", onSubmit);
+document.getElementById("btn-done").addEventListener("click", () => {
+  document.getElementById("done").style.display = "none";
+  try { window.close(); } catch (e) {}
+});
+</script>
+</body>
+</html>

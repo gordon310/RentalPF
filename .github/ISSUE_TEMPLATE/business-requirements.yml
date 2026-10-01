@@ -1,0 +1,757 @@
+name: 业务需求确认表 V1.0
+description: 办公设备租赁平台 · 业务需求快速确认表（约 12–15 分钟）
+title: "[业务答卷] "
+labels: ["business-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢填写《办公设备租赁平台 · 业务需求确认表 V1.0》。
+
+        本表用于确认：① 平台形态与收入模式 ② 设备品类与商品资产模型 ③ 租期计费与押金结算 ④ 交付、归还与风控闭环。
+        业务逻辑对标哈啰租车，并在办公自动化设备品类上扩展。
+
+        > 提交后请勿删除本 Issue —— 它会被用作需求留档与开发文档回填依据。
+        > 姓名必填，用于识别是哪位同事提交；同一人可多次提交（如修订版），每次都会单独留档，以最新一份为准。
+        > 共 53 题。标记「可多选」的题目可勾选多项；第 48 题请选 5 项，第 49 题最多选 3 项。
+
+  - type: input
+    id: submitter_name
+    attributes:
+      label: 填写人姓名
+      description: 必填。用于识别是哪位同事提交；建议同步写入 Issue 标题。
+      placeholder: 例：李四
+    validations:
+      required: true
+
+  - type: input
+    id: dept
+    attributes:
+      label: 所属部门 / 岗位
+      placeholder: 例：运营部 / 产品经理
+    validations:
+      required: false
+
+  - type: input
+    id: fill_date
+    attributes:
+      label: 填写日期
+      placeholder: 例：2026-10-01
+    validations:
+      required: true
+
+  # ---------- 一、平台定位与商业模式 ----------
+  - type: dropdown
+    id: q1
+    attributes:
+      label: "1. 平台采用哪种经营形态？（单选）"
+      options:
+        - 平台自营（自有设备出租）
+        - 商家入驻撮合（平台抽佣）
+        - 混合（自营 + 商家入驻）
+        - 暂未确定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q2
+    attributes:
+      label: "2. 第一阶段用户重心？（单选）"
+      options:
+        - 以企业客户（B 端）为主
+        - 以个人用户（C 端）为主
+        - B 端、C 端并重
+        - 暂未确定
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q3
+    attributes:
+      label: "3. 平台收入来源有哪些？（可多选）"
+      options:
+        - label: 租金差价
+        - label: 平台佣金
+        - label: 服务费（配送 / 安装 / 回收）
+        - label: 增值服务（耗材 / 维保 / 保险）
+        - label: 押金沉淀 / 租赁金融
+        - label: 广告与流量推广
+        - label: 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q4
+    attributes:
+      label: "4. 是否支持「以租代购 / 租满即送」？（单选）"
+      options:
+        - 支持
+        - 后期再做
+        - 不支持
+    validations:
+      required: true
+
+  # ---------- 二、设备品类与商品 ----------
+  - type: checkboxes
+    id: q5
+    attributes:
+      label: "5. 平台覆盖哪些设备品类？（可多选）"
+      options:
+        - label: 打印机
+        - label: 复印机（含 A3）
+        - label: 打印耗材（墨盒 / 硒鼓 / 纸张）
+        - label: 投影仪
+        - label: 会议平板 / 触控一体机
+        - label: 视频会议设备（摄像头 / 全向麦）
+        - label: 笔记本电脑
+        - label: 台式机 / 一体机
+        - label: 显示器
+        - label: 平板（iPad 等）
+        - label: 扫码枪 / 条码设备
+        - label: 标签机
+        - label: 碎纸机 / 装订设备
+        - label: 服务器 / 网络设备
+        - label: 相机 / 直播设备
+        - label: 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q6
+    attributes:
+      label: "6. 商品是否按「唯一资产（一机一码 / SN 序列号）」管理？（单选）"
+      options:
+        - 必须一机一码（可追溯每台设备）
+        - 按批次数量管理即可
+        - 混合（贵重设备一机一码，耗材按数量）
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q7
+    attributes:
+      label: "7. 商品需要维护哪些属性？（可多选）"
+      options:
+        - label: 品牌
+        - label: 型号
+        - label: 成色
+        - label: 配置参数
+        - label: 序列号 SN
+        - label: 采购日期
+        - label: 所在仓库 / 网点
+        - label: 配件清单
+        - label: 实拍图
+        - label: 说明书 / 电子资料
+        - label: 日租金 / 月租金
+        - label: 押金
+        - label: 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q8
+    attributes:
+      label: "8. 是否区分设备状态（可租 / 在租 / 维修 / 报废）并做档期占用？（单选）"
+      options:
+        - 必须，且按档期锁定库存
+        - 只记可用数量
+        - 不需要
+    validations:
+      required: true
+
+  # ---------- 三、租期与计费 ----------
+  - type: checkboxes
+    id: q9
+    attributes:
+      label: "9. 计费周期支持哪些？（可多选）"
+      options:
+        - label: 按小时
+        - label: 按天
+        - label: 按周
+        - label: 按月
+        - label: 按年
+        - label: 按合同期（一客一议）
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q10
+    attributes:
+      label: "10. 租金计价模式？（可多选）"
+      options:
+        - label: 固定单价
+        - label: 阶梯价（租期越长单价越低）
+        - label: 套餐（如月租包）
+        - label: 一客一议报价
+        - label: 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q11
+    attributes:
+      label: "11. 起租门槛？（单选）"
+      options:
+        - 无起租（最短 1 天）
+        - 最短 1 周
+        - 最短 1 个月
+        - 按合同约定
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q12
+    attributes:
+      label: "12. 是否支持续租、提前退租、换机？（可多选）"
+      options:
+        - label: 续租
+        - label: 提前退租（按比例退款）
+        - label: 换机（维修 / 升级）
+        - label: 都不支持
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q13
+    attributes:
+      label: "13. 运费 / 安装费如何计？（单选）"
+      options:
+        - 含在租金内
+        - 单列收取
+        - 按距离计算
+        - 免运费
+    validations:
+      required: true
+
+  # ---------- 四、库存与交付 ----------
+  - type: checkboxes
+    id: q14
+    attributes:
+      label: "14. 交付方式支持哪些？（可多选）"
+      options:
+        - label: 到店 / 网点自提
+        - label: 同城快递
+        - label: 上门配送 + 安装调试
+        - label: 客户寄回归还
+        - label: 上门回收
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q15
+    attributes:
+      label: "15. 是否管理耗材（墨盒 / 纸张）并支持定期补发？（单选）"
+      options:
+        - 需要（含耗材托管）
+        - 后期再做
+        - 不需要
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q16
+    attributes:
+      label: "16. 是否提供备用机？（单选）"
+      options:
+        - 租赁期内免费提供备用机
+        - 收费提供备用机
+        - 不提供
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q17
+    attributes:
+      label: "17. 是否需要多仓 / 多门店库存调拨？（单选）"
+      options:
+        - 需要
+        - 单仓即可
+        - 后期再做
+    validations:
+      required: true
+
+  # ---------- 五、用户与账户 ----------
+  - type: checkboxes
+    id: q18
+    attributes:
+      label: "18. 注册与认证方式有哪些？（可多选）"
+      options:
+        - label: 微信一键登录
+        - label: 手机号注册
+        - label: 个人实名认证
+        - label: 企业认证（营业执照）
+        - label: 信用免押（芝麻信用 / 微信支付分）
+        - label: 企业授信
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q19
+    attributes:
+      label: "19. 是否区分个人账户与企业账户？（单选）"
+      options:
+        - 必须区分
+        - 一套账号即可
+        - 暂不区分
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q20
+    attributes:
+      label: "20. 企业客户是否需要签署合同？（单选）"
+      options:
+        - 需要电子合同（在线签署）
+        - 需要线下纸质合同
+        - 不需要
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q21
+    attributes:
+      label: "21. 是否需要会员 / 等级 / 黑名单体系？（可多选）"
+      options:
+        - label: 会员等级
+        - label: 信用分
+        - label: 黑名单
+        - label: 都不需要
+    validations:
+      required: true
+
+  # ---------- 六、下单与合同流程 ----------
+  - type: checkboxes
+    id: q22
+    attributes:
+      label: "22. C 端下单流程包含哪些节点？（可多选）"
+      options:
+        - label: 选设备
+        - label: 选租期
+        - label: 填交付地址 / 取还方式
+        - label: 信用免押 / 授信
+        - label: 电子签约
+        - label: 支付
+        - label: 待交付
+        - label: 使用中
+        - label: 归还
+        - label: 结算 / 押金退还
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q23
+    attributes:
+      label: "23. B 端下单是否走询价 / 销售跟单？（单选）"
+      options:
+        - 在线自主下单
+        - 提交需求由销售报价
+        - 两者都要
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q24
+    attributes:
+      label: "24. 是否需要电子签名与合同存档？（单选）"
+      options:
+        - 需要
+        - 后期再做
+        - 不需要
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q25
+    attributes:
+      label: "25. 企业订单是否需要内部审批？（单选）"
+      options:
+        - 需要企业内审批
+        - 不需要
+    validations:
+      required: true
+
+  # ---------- 七、支付、押金与结算 ----------
+  - type: checkboxes
+    id: q26
+    attributes:
+      label: "26. 支付方式支持哪些？（可多选）"
+      options:
+        - label: 微信支付
+        - label: 支付宝
+        - label: 对公转账
+        - label: 月结账期
+        - label: 授信额度
+        - label: 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q27
+    attributes:
+      label: "27. 押金收取方式？（可多选）"
+      options:
+        - label: 全额押金
+        - label: 芝麻信用免押
+        - label: 微信支付分免押
+        - label: 企业授信免押
+        - label: 押金 + 保险
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q28
+    attributes:
+      label: "28. 押金退还规则？（单选）"
+      options:
+        - 归还验收后自动退还
+        - 人工确认后退还
+        - 按合同约定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q29
+    attributes:
+      label: "29. 租金支付节奏？（单选）"
+      options:
+        - 下单一次付清
+        - 首期 + 周期自动扣款
+        - 月结账单
+        - 按合同
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q30
+    attributes:
+      label: "30. 发票需求？（可多选）"
+      options:
+        - label: 增值税普通发票
+        - label: 增值税专用发票
+        - label: 电子发票
+        - label: 需要开票
+        - label: 不需要
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q31
+    attributes:
+      label: "31. 是否设置损坏 / 丢失赔付标准并支持自动扣款？（单选）"
+      options:
+        - 需要（标准赔偿表 + 自动扣款）
+        - 需要标准，人工扣款
+        - 人工协商
+        - 不需要
+    validations:
+      required: true
+
+  # ---------- 八、归还、验收与风控 ----------
+  - type: checkboxes
+    id: q32
+    attributes:
+      label: "32. 归还质检流程？（可多选）"
+      options:
+        - label: 客户拍照 / 视频上传
+        - label: 快递签收即完成
+        - label: 到店 / 上门验收
+        - label: 需出具检测报告
+        - label: 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q33
+    attributes:
+      label: "33. 损坏 / 丢失如何判定与赔付？（可多选）"
+      options:
+        - label: 按标准赔偿表
+        - label: 按市场价折旧
+        - label: 保险理赔
+        - label: 人工协商
+        - label: 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q34
+    attributes:
+      label: "34. 逾期未还如何处理？（可多选）"
+      options:
+        - label: 自动续租计费
+        - label: 短信 / 电话催收
+        - label: 冻结押金
+        - label: 逾期罚金
+        - label: 加入黑名单
+        - label: 法律途径
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q35
+    attributes:
+      label: "35. 是否接入外部信用 / 征信？（单选）"
+      options:
+        - 接入芝麻信用 / 微信支付分
+        - 接入企业征信
+        - 仅内部黑名单
+        - 不需要
+    validations:
+      required: true
+
+  # ---------- 九、商家端 ----------
+  - type: checkboxes
+    id: q36
+    attributes:
+      label: "36. 商家入驻需要哪些审核材料？（可多选）"
+      options:
+        - label: 营业执照
+        - label: 法人实名
+        - label: 设备清单
+        - label: 保证金
+        - label: 平台协议签署
+        - label: 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q37
+    attributes:
+      label: "37. 商家后台需要哪些功能？（可多选）"
+      options:
+        - label: 商品上架 / 编辑
+        - label: 库存与档期
+        - label: 接单发货
+        - label: 归还验收
+        - label: 结算对账
+        - label: 数据看板
+        - label: 客服工单
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q38
+    attributes:
+      label: "38. 平台与商家如何分账结算？（单选）"
+      options:
+        - 平台抽佣后分账
+        - 商家自主定价、平台收服务费
+        - 平台买断转租
+        - 暂未确定
+    validations:
+      required: true
+
+  # ---------- 十、运营后台与管理 ----------
+  - type: checkboxes
+    id: q39
+    attributes:
+      label: "39. 运营后台需要哪些模块？（可多选）"
+      options:
+        - label: 商品 / 库存 / 价格
+        - label: 订单 / 工单
+        - label: 用户 / 企业
+        - label: 商家管理
+        - label: 营销活动
+        - label: 财务对账
+        - label: 数据看板
+        - label: 权限与角色
+        - label: 内容审核
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q40
+    attributes:
+      label: "40. 是否需要营销工具？（可多选）"
+      options:
+        - label: 优惠券
+        - label: 满减 / 折扣
+        - label: 拼团 / 秒杀
+        - label: 会员套餐
+        - label: 推荐 / 分销
+        - label: 不需要
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q41
+    attributes:
+      label: "41. 客服与售后需要哪些能力？（可多选）"
+      options:
+        - label: 在线客服
+        - label: 工单系统
+        - label: 报修
+        - label: 投诉
+        - label: 知识库 FAQ
+        - label: 电话客服
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q42
+    attributes:
+      label: "42. 需要哪些角色与权限？（可多选）"
+      options:
+        - label: 超级管理员
+        - label: 运营
+        - label: 客服
+        - label: 财务
+        - label: 仓管
+        - label: 商家
+        - label: 只读
+    validations:
+      required: true
+
+  # ---------- 十一、技术与非功能 ----------
+  - type: dropdown
+    id: q43
+    attributes:
+      label: "43. 终端形态？（单选）"
+      options:
+        - 仅微信小程序
+        - 小程序 + H5
+        - 小程序 + App
+        - 小程序 + H5 + Web 管理后台
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q44
+    attributes:
+      label: "44. 消息通知方式？（可多选）"
+      options:
+        - label: 微信订阅消息
+        - label: 短信
+        - label: 小程序站内信
+        - label: 电话
+        - label: 企业微信 / 钉钉
+        - label: 邮件
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q45
+    attributes:
+      label: "45. 数据看板 / 报表需要哪些指标？（可多选）"
+      options:
+        - label: 订单量 / GMV
+        - label: 设备出租率
+        - label: 设备周转率
+        - label: 收入 / 利润
+        - label: 逾期 / 坏账
+        - label: 客户画像
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q46
+    attributes:
+      label: "46. 合规要求涉及哪些？（可多选）"
+      options:
+        - label: 电子合同法务审核
+        - label: 隐私政策 / 个人信息保护
+        - label: 支付合规
+        - label: 发票合规
+        - label: 设备数据安全
+        - label: 其他
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q47
+    attributes:
+      label: "47. 是否需要与外部系统对接？（可多选）"
+      options:
+        - label: ERP / 财务系统
+        - label: 企业微信 / 钉钉
+        - label: 物流快递
+        - label: 支付 / 信用平台
+        - label: 征信平台
+        - label: 不需要
+    validations:
+      required: true
+
+  # ---------- 十二、MVP 与优先级 ----------
+  - type: checkboxes
+    id: q48
+    attributes:
+      label: "48. 请选出第一阶段最重要的 5 项。（可多选，请选 5 项）"
+      options:
+        - label: 设备选品与搜索
+        - label: 在线定价与计费
+        - label: 信用免押 / 押金
+        - label: 在线下单与电子合同
+        - label: 支付与发票
+        - label: 库存与档期管理
+        - label: 配送 / 安装 / 回收
+        - label: 归还质检与定损
+        - label: 商家入驻与后台
+        - label: 运营管理后台
+        - label: 数据看板
+        - label: 消息通知
+        - label: 企业账户与审批
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q49
+    attributes:
+      label: "49. 最希望系统优先解决什么？（可多选，最多 3 项）"
+      options:
+        - label: 报价与计费效率
+        - label: 押金 / 收款 / 对账
+        - label: 库存与档期混乱
+        - label: 合同与开票流程
+        - label: 交付 / 安装 / 回收调度
+        - label: 归还定损与赔付
+        - label: 逾期与坏账
+        - label: 客户与商家管理
+        - label: 数据不透明
+        - label: 暂时没有明显痛点
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q50
+    attributes:
+      label: "50. 预期上线时间 / 里程碑？（单选）"
+      options:
+        - 1 个月内
+        - 3 个月内
+        - 6 个月内
+        - 暂未确定
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: q51
+    attributes:
+      label: "51. 现有资源盘点？（可多选）"
+      options:
+        - label: 已有设备库存
+        - label: 已有仓库 / 网点
+        - label: 已有商家资源
+        - label: 已有企业客户
+        - label: 已有资金
+        - label: 基本从零开始
+    validations:
+      required: true
+
+  - type: dropdown
+    id: q52
+    attributes:
+      label: "52. 是否愿意参与后续测试与评审？（单选）"
+      options:
+        - 愿意
+        - 可以偶尔参与
+        - 暂时不参与
+    validations:
+      required: true
+
+  - type: textarea
+    id: q53
+    attributes:
+      label: "53. 如有特别重要的问题，可补充一句："
+      placeholder: 选填
+    validations:
+      required: false
