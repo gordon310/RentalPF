@@ -5,7 +5,7 @@
 - 在线填写表单：`index.html`（也可直接打开本地文件）
 - GitHub 在线提交：仓库 `Issues` → 选择「业务需求确认表 V1.0」
 - 每条提交 = 一个 GitHub Issue（label `business-feedback`），永久留档、可导出
-- 开发需求文档骨架：`docs/办公设备租赁平台开发需求文档_V0.1.md`
+- 开发需求文档（V0.2 已回填最终决议）：`docs/办公设备租赁平台开发需求文档_V0.2.md`
 
 > 业务逻辑对标哈啰租车（取还 → 选品 → 选期 → 计价 → 免押 → 下单支付 → 交付验机 → 使用 → 归还结算），品类扩展为办公自动化设备。
 
@@ -23,7 +23,7 @@ RentalPF/
 │   ├── business-requirements.yml     GitHub Issue 表单（53 题结构化）
 │   └── config.yml                    新增 issue 引导
 ├── docs/
-│   └── 办公设备租赁平台开发需求文档_V0.1.md
+│   └── 办公设备租赁平台开发需求文档_V0.2.md
 ├── relay/                            Cloudflare Worker 中转（可选，实现「提交→谢谢」）
 │   ├── worker.js
 │   ├── wrangler.toml
@@ -69,7 +69,7 @@ RentalPF/
 ## 维护与回填
 
 - 修改问卷：先改 `questionnaire.md`，再同步 `index.html` 的 `SECTIONS`、`records.html` 的 `QLABELS` 与 `business-requirements.yml`。
-- 收到答卷后：在 `docs/办公设备租赁平台开发需求文档_V0.1.md` 中把对应 `【待确认】` 回填，并标注来源与日期。
+- 收到答卷后：在 `docs/办公设备租赁平台开发需求文档_V0.2.md` 中把对应 `【待确认】` 回填，并标注来源与日期。
 
 ## 测试
 
