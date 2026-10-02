@@ -1,4 +1,4 @@
-# RentalPF C 端小程序 · UI 设计规范 V0.2
+# 鲤程租赁（RentalPF）C 端小程序 · UI 设计规范 V0.2
 
 > 依据 `gordondev/uigd.md` + **`ui-ux-pro-max`**（设计智能）+ **`frontend-app-builder`**（前端构建标准）产出。
 > 适用于一期 C 端微信小程序（15 屏，汽车 + 设备）。
