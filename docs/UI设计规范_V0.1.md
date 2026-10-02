@@ -53,7 +53,7 @@
 
 - 结构：状态栏 → 导航栏（返回/标题/右侧动作）→ 内容区 → 固定操作条 / 底部标签栏。
 - 网格：8pt（4/8/12/16/24/32）；卡片间距 12，页面边距 16。
-- 组件：`navbar`、`card`、`chips`、`option`(单选)、`checkbox`、`period-tabs`、`steps`、`tabs`、`order-card`、`upload`、`actionbar`、`tabbar`、`feelist`(费用明细)。
+- 组件：`navbar`、`card`、`chips`、`option`(单选)、`checkbox`、`period-tabs`、`steps`、`tabs`、`order-card`、`upload`、`actionbar`、`tabbar`、`feelist`(费用明细)、`banner`(首页广告 slide 轮播)。
 
 ## 5. 设计令牌建议
 
@@ -89,6 +89,7 @@
 - [ ] 所有可点击元素热区 ≥44px，按压有反馈
 - [ ] 空/加载/错误状态在列表与订单页有设计
 - [ ] 全面屏底部安全区适配，操作条不被遮挡
+- [ ] 首页广告 Banner 为 slide 轮播，圆点与滑动同步，可点击跳转，**后台可配置**，未配置时不展示
 - [ ] 文案无歧义、无占位符（"TBD"）
 
 ## 9. 可选代码 / Diff

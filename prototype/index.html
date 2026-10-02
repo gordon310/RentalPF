@@ -75,6 +75,16 @@ html,body{margin:0;padding:0;font-family:var(--font);color:var(--ink);background
 /* ============ 各页专属 ============ */
 .hero{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;padding:22px 18px 26px;border-radius:0 0 22px 22px}
 .searchbar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:var(--r-pill);padding:9px 14px;color:#E0E7FF;font-size:14px;margin-top:14px}
+/* 首页广告 Banner（slide 轮播，后台可配置） */
+.banner{padding:12px 16px 0}
+.banner-track{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:var(--r-lg);scrollbar-width:none}
+.banner-track::-webkit-scrollbar{display:none}
+.banner-slide{flex:0 0 100%;scroll-snap-align:start;height:118px;border-radius:var(--r-lg);display:flex;flex-direction:column;justify-content:center;padding:0 20px;color:#fff}
+.banner-slide h4{margin:0;font-size:17px;font-weight:700}
+.banner-slide p{margin:5px 0 0;font-size:12px;opacity:.92}
+.banner-dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.banner-dots i{width:6px;height:6px;border-radius:50%;background:#CBD5E1;display:block;transition:all var(--dur)}
+.banner-dots i.on{background:var(--primary);width:14px;border-radius:3px}
 .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-3)}
 .cat{background:var(--card);border-radius:var(--r-md);padding:14px 6px;text-align:center;box-shadow:var(--sh-1);cursor:pointer}
 .cat .ic{font-size:24px}
@@ -190,6 +200,15 @@ textarea.field{width:100%;min-height:96px;border:1px solid var(--line);border-ra
       <div class="hero">
         <div class="between"><b>杭州</b><span data-go="s-notify" style="cursor:pointer">🔔</span></div>
         <div class="searchbar" data-go="s-list">🔍 搜索设备 / 品牌 / 型号</div>
+      </div>
+      <div class="banner">
+        <div class="banner-track" id="bannerTrack">
+          <div class="banner-slide" style="background:linear-gradient(135deg,#2563EB,#4F46E5)" data-go="s-list"><h4>新人首租立减 ¥50</h4><p>高价值设备 · 信用免押 · 随租随用</p></div>
+          <div class="banner-slide" style="background:linear-gradient(135deg,#0EA5E9,#16A34A)" data-go="s-list"><h4>相机镜头 8 折起</h4><p>专业拍摄设备 · 同城当日达</p></div>
+          <div class="banner-slide" style="background:linear-gradient(135deg,#F59E0B,#DC2626)" data-go="s-list"><h4>会议 / 直播套餐</h4><p>投影 + 全向麦 + 直播灯 一站式</p></div>
+        </div>
+        <div class="banner-dots" id="bannerDots"><i class="on"></i><i></i><i></i></div>
+        <div class="tiny muted" style="text-align:center;margin-top:4px">广告位 · 后台可配置（slide 轮播）</div>
       </div>
       <div class="pad">
         <div class="cat-grid">
@@ -557,6 +576,23 @@ document.addEventListener("click", e=>{
   const opt = e.target.closest(".option");
   if(opt){ opt.parentElement.querySelectorAll(".option").forEach(o=>o.classList.remove("active")); opt.classList.add("active"); }
 });
+// 首页广告 Banner 轮播：滚动同步圆点 + 自动播放
+const bt = document.getElementById("bannerTrack");
+if (bt) {
+  const dots = document.getElementById("bannerDots").children;
+  const sync = () => {
+    const i = Math.round(bt.scrollLeft / bt.clientWidth);
+    [...dots].forEach((d, k) => d.classList.toggle("on", k === i));
+  };
+  bt.addEventListener("scroll", sync, { passive: true });
+  setInterval(() => {
+    if (!document.getElementById("s-home").classList.contains("active")) return;
+    const i = Math.round(bt.scrollLeft / bt.clientWidth);
+    const n = (i + 1) % dots.length;
+    bt.scrollTo({ left: n * bt.clientWidth, behavior: "smooth" });
+  }, 4000);
+}
+
 show("s-login");
 </script>
 </body>
