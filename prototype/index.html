@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>RentalPF 小程序原型 V0.1</title>
+<style>
+/* ============ 设计令牌 Design Tokens ============ */
+:root{
+  --primary:#2563EB; --primary-600:#1D4ED8; --primary-weak:#EFF6FF;
+  --success:#16A34A; --success-weak:#DCFCE7;
+  --warn:#D97706; --warn-weak:#FEF3C7;
+  --danger:#DC2626; --danger-weak:#FEE2E2;
+  --ink:#111827; --ink-2:#374151; --muted:#6B7280; --muted-2:#9CA3AF;
+  --line:#E5E7EB; --line-2:#F3F4F6; --bg:#F5F7FA; --card:#FFFFFF;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+  --sh-1:0 1px 2px rgba(0,0,0,.04); --sh-2:0 8px 24px rgba(0,0,0,.10);
+  --dur:200ms; --ease:cubic-bezier(.2,.8,.2,1);
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;font-family:var(--font);color:var(--ink);background:#0B1220}
+.page-desktop{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 12px 48px}
+.hint{color:#94A3B8;font-size:12px;text-align:center;margin:8px 0 16px}
+.hint a{color:#93C5FD}
+
+/* ============ 手机外壳 ============ */
+.phone{width:390px;max-width:100%;height:812px;max-height:92vh;background:var(--bg);border-radius:40px;border:10px solid #111827;box-shadow:var(--sh-2);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.statusbar{height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:13px;font-weight:600;color:var(--ink);background:var(--card)}
+.statusbar .dots{letter-spacing:2px;color:var(--muted)}
+.screen{display:none;flex:1 1 auto;overflow-y:auto;overflow-x:hidden;background:var(--bg);padding-bottom:72px;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{display:block}
+
+/* ============ 通用 ============ */
+.navbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:var(--sp-2);height:48px;padding:0 var(--sp-4);background:var(--card);border-bottom:1px solid var(--line)}
+.navbar .back{font-size:20px;color:var(--ink);cursor:pointer;width:28px}
+.navbar .title{font-size:16px;font-weight:600;flex:1}
+.navbar .right{font-size:13px;color:var(--primary);cursor:pointer}
+.pad{padding:var(--sp-4)}
+.card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:var(--sp-4);margin:var(--sp-3) var(--sp-4)}
+.card.tight{padding:var(--sp-3)}
+.row{display:flex;align-items:center;gap:var(--sp-3)}
+.between{display:flex;align-items:center;justify-content:space-between}
+.muted{color:var(--muted)}.small{font-size:12px}.tiny{font-size:11px}
+.h1{font-size:20px;font-weight:700}.h2{font-size:16px;font-weight:600}.h3{font-size:14px;font-weight:600}
+.price{color:var(--danger);font-weight:700}
+.price small{font-weight:400;font-size:11px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--r-pill);background:var(--primary-weak);color:var(--primary);font-weight:600}
+.tag.green{background:var(--success-weak);color:var(--success)}
+.tag.orange{background:var(--warn-weak);color:var(--warn)}
+.tag.red{background:var(--danger-weak);color:var(--danger)}
+.btn{display:block;width:100%;border:none;border-radius:var(--r-md);padding:13px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;transition:transform var(--dur) var(--ease),background var(--dur)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:disabled{background:var(--muted-2);cursor:not-allowed}
+.btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.btn-sm{width:auto;padding:8px 16px;font-size:13px;border-radius:var(--r-pill)}
+.thumb{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;color:#1E40AF;font-size:12px;font-weight:600;flex:0 0 auto}
+.divider{height:1px;background:var(--line-2);margin:var(--sp-3) 0}
+.chips{display:flex;gap:var(--sp-2);overflow-x:auto;padding:var(--sp-3) var(--sp-4);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:6px 14px;border-radius:var(--r-pill);background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--ink-2);cursor:pointer}
+.chip.active{background:var(--primary-weak);border-color:var(--primary);color:var(--primary);font-weight:600}
+.placeholder-note{margin:var(--sp-3) var(--sp-4);padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r-md);color:var(--muted-2);font-size:11px;text-align:center}
+.badge-dot{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;background:var(--danger);border-radius:50%}
+
+/* ============ 底部标签栏 ============ */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:64px;background:var(--card);border-top:1px solid var(--line);display:flex;z-index:20}
+.tabbar .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--muted);cursor:pointer;position:relative}
+.tabbar .tab.active{color:var(--primary);font-weight:600}
+.tabbar .tab svg{width:24px;height:24px}
+
+/* ============ 各页专属 ============ */
+.hero{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;padding:22px 18px 26px;border-radius:0 0 22px 22px}
+.searchbar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border-radius:var(--r-pill);padding:9px 14px;color:#E0E7FF;font-size:14px;margin-top:14px}
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-3)}
+.cat{background:var(--card);border-radius:var(--r-md);padding:14px 6px;text-align:center;box-shadow:var(--sh-1);cursor:pointer}
+.cat .ic{font-size:24px}
+.cat .nm{font-size:12px;margin-top:6px;color:var(--ink-2)}
+.gallery{height:230px;background:linear-gradient(135deg,#DBEAFE,#93C5FD);display:flex;align-items:center;justify-content:center;color:#1E40AF;font-weight:600}
+.spec-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-2);font-size:13px}
+.spec-row .k{color:var(--muted)}
+.period-tabs{display:flex;gap:var(--sp-2);margin:var(--sp-3) 0}
+.period{flex:1;text-align:center;padding:8px;border-radius:var(--r-sm);background:var(--primary-weak);color:var(--primary);font-size:13px;font-weight:600;cursor:pointer}
+.period.active{background:var(--primary);color:#fff}
+.date-range{display:flex;gap:var(--sp-2)}
+.date-box{flex:1;border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
+.date-box .lb{font-size:11px;color:var(--muted)}
+.date-box .vl{font-size:14px;font-weight:600;margin-top:2px}
+.option{border:1px solid var(--line);border-radius:var(--r-md);padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer}
+.option.active{border-color:var(--primary);background:var(--primary-weak)}
+.option .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted-2);flex:0 0 auto}
+.option.active .radio{border-color:var(--primary);background:radial-gradient(circle,var(--primary) 45%,transparent 47%)}
+.option .body{flex:1}
+.option .body .t{font-size:14px;font-weight:600}
+.option .body .d{font-size:12px;color:var(--muted);margin-top:2px}
+.feelist{font-size:13px}
+.feelist .fl{display:flex;justify-content:space-between;padding:7px 0}
+.feelist .fl.total{font-size:15px;font-weight:700;border-top:1px solid var(--line);margin-top:6px;padding-top:12px}
+.feelist .fl.total .price{font-size:18px}
+.checkbox{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--muted);margin-top:10px}
+.checkbox .box{width:16px;height:16px;border:1.5px solid var(--muted-2);border-radius:4px;flex:0 0 auto;margin-top:1px}
+.checkbox.on .box{background:var(--primary);border-color:var(--primary);position:relative}
+.checkbox.on .box::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:8px;border:2px solid #fff;border-top:0;border-left:0;transform:rotate(45deg)}
+
+/* 步骤条 */
+.steps{display:flex;align-items:center;gap:6px;padding:var(--sp-3) var(--sp-4)}
+.steps .s{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.steps .dot{width:20px;height:20px;border-radius:50%;background:var(--line);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px}
+.steps .s.on{color:var(--primary);font-weight:600}
+.steps .s.on .dot{background:var(--primary)}
+.steps .bar{flex:1;height:1px;background:var(--line)}
+
+/* 订单 */
+.order-card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--sh-1);margin:var(--sp-3) var(--sp-4);padding:var(--sp-4)}
+.order-card .ostatus{font-size:13px;font-weight:600;color:var(--primary)}
+.order-card .ostatus.warn{color:var(--warn)}
+.order-card .ostatus.done{color:var(--muted)}
+.order-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.tabs{display:flex;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:4}
+.tabs .t{flex:1;text-align:center;padding:12px 0;font-size:13px;color:var(--muted);cursor:pointer}
+.tabs .t.active{color:var(--primary);font-weight:600;box-shadow:inset 0 -2px 0 var(--primary)}
+
+/* 上传 */
+.upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.upload{aspect-ratio:1;border:1px dashed var(--line);border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted-2);font-size:11px;gap:4px;cursor:pointer}
+.upload .pl{font-size:20px}
+
+/* 我的 */
+.profile{background:linear-gradient(135deg,#2563EB,#4F46E5);color:#fff;padding:22px 18px 60px;border-radius:0 0 22px 22px}
+.avatar{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700}
+.menu{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--sh-1);margin:-40px var(--sp-4) var(--sp-3);overflow:hidden}
+.menu .mi{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line-2);font-size:14px;cursor:pointer}
+.menu .mi:last-child{border-bottom:none}
+.menu .mi .ic{font-size:18px;width:24px;text-align:center}
+.menu .mi .rt{margin-left:auto;color:var(--muted-2);font-size:13px}
+
+/* 通知 */
+.msg{display:flex;gap:12px;padding:14px var(--sp-4);background:var(--card);border-bottom:1px solid var(--line-2)}
+.msg .ic{width:38px;height:38px;border-radius:10px;background:var(--primary-weak);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto}
+.msg .tt{font-size:14px;font-weight:600}
+.msg .dd{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* FAQ */
+.faq{padding:14px var(--sp-4);background:var(--card);border-bottom:1px solid var(--line-2);font-size:14px;display:flex;justify-content:space-between}
+textarea.field{width:100%;min-height:96px;border:1px solid var(--line);border-radius:var(--r-md);padding:12px;font-family:var(--font);font-size:14px;resize:vertical}
+.field-input{width:100%;border:1px solid var(--line);border-radius:var(--r-md);padding:12px;font-size:14px;font-family:var(--font)}
+
+/* 底部操作条 */
+.actionbar{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 16px 16px;display:flex;gap:10px;z-index:20}
+.actionbar .btn{flex:1;margin:0}
+.actionbar .btn.icon{flex:0 0 64px;background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:12px}
+
+/* 评审导航 */
+.jump{position:fixed;top:12px;right:12px;z-index:100;background:#1E293B;color:#E2E8F0;border:1px solid #334155;border-radius:10px;padding:8px 10px;font-size:12px;font-family:var(--font)}
+.jump select{background:#0F172A;color:#E2E8F0;border:1px solid #334155;border-radius:6px;padding:4px;font-size:12px}
+@media (max-width:430px){.phone{height:100vh;max-height:100vh;border-radius:0;border:none}.page-desktop{padding:0}.hint{display:none}}
+</style>
+</head>
+<body>
+<div class="page-desktop">
+  <div class="hint">RentalPF 小程序原型 V0.1 · 中高保真 · 科技蓝 #2563EB · 点击页面中的按钮/标签可跳转</div>
+
+  <div class="phone">
+    <div class="statusbar"><span>9:41</span><span class="dots">●●● 5G ▮</span></div>
+
+    <!-- ================= 1. 登录 ================= -->
+    <section class="screen active" id="s-login">
+      <div style="padding:64px 28px 0">
+        <div style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#2563EB,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:700">R</div>
+        <div class="h1" style="margin-top:20px">RentalPF 租赁</div>
+        <div class="muted" style="margin-top:6px">高价值办公设备 · 随租随用</div>
+      </div>
+      <div class="card" style="margin-top:40px">
+        <div class="h2">欢迎登录</div>
+        <div class="muted small" style="margin:6px 0 16px">登录后可租用投影仪、相机、镜头等高端设备</div>
+        <button class="btn btn-primary" data-go="s-home">微信一键登录</button>
+        <button class="btn btn-ghost" style="margin-top:10px" data-go="s-home">手机号登录</button>
+        <label class="checkbox on" onclick="this.classList.toggle('on')"><span class="box"></span>
+          <span>我已阅读并同意 <b style="color:var(--primary)">《用户协议》</b> 与 <b style="color:var(--primary)">《隐私政策》</b></span>
+        </label>
+      </div>
+      <div class="placeholder-note">原型演示：点击登录进入首页</div>
+    </section>
+
+    <!-- ================= 2. 首页 ================= -->
+    <section class="screen" id="s-home">
+      <div class="hero">
+        <div class="between"><b>杭州</b><span data-go="s-notify" style="cursor:pointer">🔔</span></div>
+        <div class="searchbar" data-go="s-list">🔍 搜索设备 / 品牌 / 型号</div>
+      </div>
+      <div class="pad">
+        <div class="cat-grid">
+          <div class="cat" data-go="s-list"><div class="ic">📽️</div><div class="nm">投影仪</div></div>
+          <div class="cat" data-go="s-list"><div class="ic">📷</div><div class="nm">相机</div></div>
+          <div class="cat" data-go="s-list"><div class="ic">🔭</div><div class="nm">镜头</div></div>
+          <div class="cat" data-go="s-list"><div class="ic">🚁</div><div class="nm">无人机</div></div>
+          <div class="cat" data-go="s-list"><div class="ic">🎥</div><div class="nm">直播设备</div></div>
+          <div class="cat" data-go="s-list"><div class="ic">🖥️</div><div class="nm">会议设备</div></div>
+        </div>
+      </div>
+      <div class="between" style="padding:0 16px"><div class="h2">热门推荐</div><span class="small muted" data-go="s-list">全部 ›</span></div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:96px;height:72px">投影仪</div>
+          <div style="flex:1"><div class="h3">极米 H6 4K 投影仪</div>
+            <div class="small muted" style="margin:4px 0">4K 高亮 · 自动对焦 · 含幕布</div>
+            <div class="tag green">信用免押</div>
+            <div style="margin-top:6px"><span class="price">¥89<small>/天</small></span> <span class="tiny muted">起</span></div>
+          </div></div>
+      </div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:96px;height:72px">相机</div>
+          <div style="flex:1"><div class="h3">佳能 EOS R5 全画幅</div>
+            <div class="small muted" style="margin:4px 0">含 24-70 套机 · 可加镜头</div>
+            <div class="tag orange">押金授权</div>
+            <div style="margin-top:6px"><span class="price">¥180<small>/天</small></span> <span class="tiny muted">起</span></div>
+          </div></div>
+      </div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:96px;height:72px">镜头</div>
+          <div style="flex:1"><div class="h3">索尼 24-70mm F2.8 GM</div>
+            <div class="small muted" style="margin:4px 0">E 卡口 · 专业变焦</div>
+            <div class="tag orange">押金授权</div>
+            <div style="margin-top:6px"><span class="price">¥120<small>/天</small></span> <span class="tiny muted">起</span></div>
+          </div></div>
+      </div>
+      <div class="placeholder-note">示例数据，实际由后台配置</div>
+    </section>
+
+    <!-- ================= 3. 分类/列表 ================= -->
+    <section class="screen" id="s-list">
+      <div class="navbar"><span class="back" data-go="s-home">‹</span><span class="title">投影仪</span><span class="right">筛选</span></div>
+      <div class="chips">
+        <span class="chip active">全部</span><span class="chip">极米</span><span class="chip">坚果</span><span class="chip">当贝</span><span class="chip">按天</span><span class="chip">可免押</span>
+      </div>
+      <div class="between" style="padding:4px 16px 0"><span class="small muted">共 12 件可用</span><span class="small muted">价格 ↑</span></div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:104px;height:80px">投影仪</div>
+          <div style="flex:1"><div class="h3">极米 H6 4K</div>
+            <div class="small muted" style="margin:4px 0">4K · 自动对焦</div>
+            <div><span class="tag green">免押</span> <span class="tag">当日可租</span></div>
+            <div style="margin-top:6px"><span class="price">¥89<small>/天</small></span></div>
+          </div></div>
+      </div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:104px;height:80px">投影仪</div>
+          <div style="flex:1"><div class="h3">坚果 N1 Ultra</div>
+            <div class="small muted" style="margin:4px 0">三色激光 · 高亮</div>
+            <div><span class="tag green">免押</span></div>
+            <div style="margin-top:6px"><span class="price">¥109<small>/天</small></span></div>
+          </div></div>
+      </div>
+      <div class="card tight" data-go="s-detail">
+        <div class="row"><div class="thumb" style="width:104px;height:80px">投影仪</div>
+          <div style="flex:1"><div class="h3">当贝 X5 Pro</div>
+            <div class="small muted" style="margin:4px 0">4K 激光 · 含支架</div>
+            <div><span class="tag orange">押金</span></div>
+            <div style="margin-top:6px"><span class="price">¥79<small>/天</small></span></div>
+          </div></div>
+      </div>
+    </section>
+
+    <!-- ================= 4. 商品详情 ================= -->
+    <section class="screen" id="s-detail">
+      <div class="navbar" style="position:absolute;background:transparent;border:none;width:100%"><span class="back" data-go="s-list" style="background:rgba(255,255,255,.85);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center">‹</span></div>
+      <div class="gallery">商品主图 / 图片集</div>
+      <div class="card">
+        <div class="row"><span class="price" style="font-size:22px">¥89<small>/天</small></span><span class="tag green" style="margin-left:8px">可选免押</span></div>
+        <div class="h2" style="margin-top:6px">极米 H6 4K 投影仪</div>
+        <div class="small muted" style="margin-top:4px">4K 高亮 · 自动对焦 · 含幕布与支架</div>
+        <div class="divider"></div>
+        <div class="h3" style="margin-bottom:6px">选择租期</div>
+        <div class="period-tabs"><span class="period active">按天</span><span class="period">按周</span><span class="period">按月</span></div>
+        <div class="date-range">
+          <div class="date-box"><div class="lb">取用日期</div><div class="vl">10-03 周四</div></div>
+          <div class="date-box"><div class="lb">归还日期</div><div class="vl">10-05 周六</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">规格参数</div>
+        <div class="spec-row"><span class="k">分辨率</span><span>4K UHD</span></div>
+        <div class="spec-row"><span class="k">亮度</span><span>1200 CVIA 流明</span></div>
+        <div class="spec-row"><span class="k">配件</span><span>幕布 / 支架 / 遥控器</span></div>
+        <div class="spec-row" style="border:none"><span class="k">押金</span><span>¥1500（可免押）</span></div>
+      </div>
+      <div class="placeholder-note">底部操作条固定在屏幕底部</div>
+      <div class="actionbar">
+        <button class="btn icon" data-go="s-support">客服</button>
+        <button class="btn btn-primary" data-go="s-checkout">立即租用</button>
+      </div>
+    </section>
+
+    <!-- ================= 5. 下单确认 ================= -->
+    <section class="screen" id="s-checkout">
+      <div class="navbar"><span class="back" data-go="s-detail">‹</span><span class="title">确认订单</span></div>
+      <div class="card tight">
+        <div class="row"><div class="thumb" style="width:80px;height:64px">投影仪</div>
+          <div style="flex:1"><div class="h3">极米 H6 4K 投影仪</div><div class="small muted">10-03 ~ 10-05 · 3 天</div></div>
+          <span class="price">¥267</span></div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:8px">取还方式</div>
+        <div class="option active"><span class="radio"></span><div class="body"><div class="t">到店自提</div><div class="d">钱江新城店 · 杭州市上城区</div></div></div>
+        <div class="option"><span class="radio"></span><div class="body"><div class="t">上门配送 + 安装</div><div class="d">同城 3 小时达 · 服务费 ¥30</div></div></div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:8px">押金方式</div>
+        <div class="option active"><span class="radio"></span><div class="body"><div class="t">信用免押</div><div class="d">芝麻信用 650 分以上可免</div></div><span class="tag green">推荐</span></div>
+        <div class="option"><span class="radio"></span><div class="body"><div class="t">押金授权 ¥1500</div><div class="d">归还验收后自动解冻</div></div></div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">费用明细</div>
+        <div class="feelist">
+          <div class="fl"><span class="muted">租金（¥89 × 3 天）</span><span>¥267</span></div>
+          <div class="fl"><span class="muted">服务费</span><span>¥0</span></div>
+          <div class="fl"><span class="muted">押金（免押）</span><span>¥0</span></div>
+          <div class="fl total"><span>合计</span><span class="price">¥267</span></div>
+        </div>
+        <label class="checkbox on" onclick="this.classList.toggle('on')"><span class="box"></span><span>同意 <b style="color:var(--primary)">《租赁服务协议》</b></span></label>
+      </div>
+      <div class="actionbar"><button class="btn btn-primary" data-go="s-verify">提交订单</button></div>
+    </section>
+
+    <!-- ================= 6. 实名/免押 ================= -->
+    <section class="screen" id="s-verify">
+      <div class="navbar"><span class="back" data-go="s-checkout">‹</span><span class="title">实名与免押</span></div>
+      <div class="steps">
+        <div class="s on"><span class="dot">1</span>实名</div><div class="bar"></div>
+        <div class="s on"><span class="dot">2</span>免押</div><div class="bar"></div>
+        <div class="s"><span class="dot">3</span>支付</div>
+      </div>
+      <div class="card">
+        <div class="h3">实名认证</div>
+        <div class="small muted" style="margin:6px 0 12px">用于租赁合同与押金结算，信息加密存储</div>
+        <input class="field-input" placeholder="真实姓名" />
+        <input class="field-input" style="margin-top:8px" placeholder="身份证号" />
+      </div>
+      <div class="card">
+        <div class="h3">信用免押</div>
+        <div class="small muted" style="margin:6px 0 12px">选择任一渠道授权，最高可免 ¥1500 押金</div>
+        <button class="btn btn-ghost" style="text-align:left">芝麻信用授权 ›</button>
+        <button class="btn btn-ghost" style="margin-top:8px;text-align:left">微信支付分授权 ›</button>
+      </div>
+      <div class="actionbar"><button class="btn btn-primary" data-go="s-pay">完成授权</button></div>
+    </section>
+
+    <!-- ================= 7. 支付 ================= -->
+    <section class="screen" id="s-pay">
+      <div class="navbar"><span class="back" data-go="s-verify">‹</span><span class="title">支付订单</span></div>
+      <div class="card" style="text-align:center">
+        <div class="muted small">应付金额</div>
+        <div class="price" style="font-size:34px;margin-top:6px">¥267</div>
+        <div class="small muted" style="margin-top:6px">请在 <b style="color:var(--danger)">14:59</b> 内完成支付</div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:8px">支付方式</div>
+        <div class="option active"><span class="radio"></span><div class="body"><div class="t">微信支付</div></div></div>
+        <div class="option"><span class="radio"></span><div class="body"><div class="t">支付宝</div></div></div>
+      </div>
+      <div class="actionbar"><button class="btn btn-primary" data-go="s-orders">立即支付</button></div>
+    </section>
+
+    <!-- ================= 8. 订单列表 ================= -->
+    <section class="screen" id="s-orders">
+      <div class="navbar"><span class="back" data-go="s-home">‹</span><span class="title">我的订单</span></div>
+      <div class="tabs"><span class="t active">全部</span><span class="t">待取</span><span class="t">租用中</span><span class="t">待归还</span><span class="t">已完成</span></div>
+      <div class="order-card" data-go="s-orderdetail">
+        <div class="between"><span class="ostatus warn">待取用 · 今日 18:00 前</span><span class="small muted">自提</span></div>
+        <div class="row" style="margin-top:12px"><div class="thumb" style="width:72px;height:56px">投影仪</div>
+          <div style="flex:1"><div class="h3">极米 H6 4K 投影仪</div><div class="small muted">10-03 ~ 10-05 · 3 天</div></div>
+          <span class="price">¥267</span></div>
+        <div class="order-actions"><button class="btn btn-ghost btn-sm">查看码</button><button class="btn btn-primary btn-sm">去取用</button></div>
+      </div>
+      <div class="order-card" data-go="s-orderdetail">
+        <div class="between"><span class="ostatus">租用中 · 剩 2 天</span><span class="small muted">配送</span></div>
+        <div class="row" style="margin-top:12px"><div class="thumb" style="width:72px;height:56px">相机</div>
+          <div style="flex:1"><div class="h3">佳能 EOS R5 全画幅</div><div class="small muted">10-01 ~ 10-06 · 6 天</div></div>
+          <span class="price">¥1080</span></div>
+        <div class="order-actions"><button class="btn btn-ghost btn-sm">续租</button><button class="btn btn-primary btn-sm">申请归还</button></div>
+      </div>
+      <div class="order-card">
+        <div class="between"><span class="ostatus done">已完成</span><span class="small muted">自提</span></div>
+        <div class="row" style="margin-top:12px"><div class="thumb" style="width:72px;height:56px">镜头</div>
+          <div style="flex:1"><div class="h3">索尼 24-70mm F2.8 GM</div><div class="small muted">09-20 ~ 09-23 · 4 天</div></div>
+          <span class="price">¥480</span></div>
+        <div class="order-actions"><button class="btn btn-ghost btn-sm">再来一单</button><button class="btn btn-ghost btn-sm">评价</button></div>
+      </div>
+    </section>
+
+    <!-- ================= 9. 订单详情 ================= -->
+    <section class="screen" id="s-orderdetail">
+      <div class="navbar"><span class="back" data-go="s-orders">‹</span><span class="title">订单详情</span></div>
+      <div class="card" style="text-align:center">
+        <div class="h2" style="color:var(--primary)">租用中</div>
+        <div class="small muted" style="margin-top:4px">距离归还还剩 2 天 06:12:33</div>
+      </div>
+      <div class="card tight">
+        <div class="row"><div class="thumb" style="width:80px;height:64px">相机</div>
+          <div style="flex:1"><div class="h3">佳能 EOS R5 全画幅</div><div class="small muted">含 24-70 套机 · SN-R5-0087</div></div></div>
+      </div>
+      <div class="card">
+        <div class="spec-row"><span class="k">订单号</span><span>RP202610010087</span></div>
+        <div class="spec-row"><span class="k">租期</span><span>10-01 ~ 10-06 · 6 天</span></div>
+        <div class="spec-row"><span class="k">取还方式</span><span>上门配送 + 回收</span></div>
+        <div class="spec-row" style="border:none"><span class="k">押金</span><span>授权 ¥8000（未扣款）</span></div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">费用</div>
+        <div class="feelist"><div class="fl"><span class="muted">租金</span><span>¥1080</span></div>
+          <div class="fl"><span class="muted">服务费</span><span>¥30</span></div>
+          <div class="fl total"><span>已付</span><span class="price">¥1110</span></div></div>
+      </div>
+      <div class="actionbar">
+        <button class="btn icon" data-go="s-support">客服</button>
+        <button class="btn btn-ghost" data-go="s-orders">续租</button>
+        <button class="btn btn-primary" data-go="s-returnapply">申请归还</button>
+      </div>
+    </section>
+
+    <!-- ================= 10. 归还申请 ================= -->
+    <section class="screen" id="s-returnapply">
+      <div class="navbar"><span class="back" data-go="s-orderdetail">‹</span><span class="title">申请归还</span></div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:8px">归还方式</div>
+        <div class="option active"><span class="radio"></span><div class="body"><div class="t">上门回收</div><div class="d">预约时间段，上门取件</div></div></div>
+        <div class="option"><span class="radio"></span><div class="body"><div class="t">保价寄回</div><div class="d">平台承担运费 · 保价 ¥8000</div></div></div>
+        <div class="option"><span class="radio"></span><div class="body"><div class="t">到店归还</div><div class="d">钱江新城店</div></div></div>
+      </div>
+      <div class="card">
+        <div class="h3">设备照片（验收依据）</div>
+        <div class="upload-grid">
+          <div class="upload"><span class="pl">📷</span>机身外观</div>
+          <div class="upload"><span class="pl">📷</span>镜头</div>
+          <div class="upload"><span class="pl">＋</span>添加</div>
+        </div>
+        <div class="small muted" style="margin-top:8px">请如实拍摄，作为归还验收与定损依据</div>
+      </div>
+      <div class="actionbar"><button class="btn btn-primary" data-go="s-returncheck">提交归还</button></div>
+    </section>
+
+    <!-- ================= 11. 归还验收/定损 ================= -->
+    <section class="screen" id="s-returncheck">
+      <div class="navbar"><span class="back" data-go="s-returnapply">‹</span><span class="title">归还验收</span></div>
+      <div class="card" style="text-align:center">
+        <div class="h2" style="color:var(--warn)">验收中</div>
+        <div class="small muted" style="margin-top:4px">工作人员正在核验设备</div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">验收结果</div>
+        <div class="spec-row"><span class="k">机身外观</span><span style="color:var(--success)">正常</span></div>
+        <div class="spec-row"><span class="k">镜头</span><span style="color:var(--warn)">轻微划痕</span></div>
+        <div class="spec-row" style="border:none"><span class="k">功能</span><span style="color:var(--success)">正常</span></div>
+      </div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">定损与结算</div>
+        <div class="feelist">
+          <div class="fl"><span class="muted">定损金额</span><span>¥200</span></div>
+          <div class="fl"><span class="muted">押金解冻</span><span>¥7800</span></div>
+          <div class="fl total"><span>应退押金</span><span class="price">¥7800</span></div>
+        </div>
+        <label class="checkbox on" onclick="this.classList.toggle('on')"><span class="box"></span><span>我认可验收结果，同意从押金扣除 ¥200</span></label>
+      </div>
+      <div class="actionbar">
+        <button class="btn btn-ghost">申诉</button>
+        <button class="btn btn-primary" data-go="s-orders">确认验收</button>
+      </div>
+    </section>
+
+    <!-- ================= 12. 我的 ================= -->
+    <section class="screen" id="s-mine">
+      <div class="profile">
+        <div class="row"><div class="avatar">戈</div>
+          <div style="margin-left:12px"><div class="h2" style="color:#fff">戈登</div>
+            <div class="small" style="color:#DBEAFE;margin-top:2px">已实名 · 信用免押已开通</div></div></div>
+      </div>
+      <div class="menu">
+        <div class="mi" data-go="s-verify"><span class="ic">🪪</span>实名与信用<span class="rt">已认证 ›</span></div>
+        <div class="mi" data-go="s-orders"><span class="ic">📦</span>我的订单<span class="rt">2 进行中 ›</span></div>
+        <div class="mi"><span class="ic">🎫</span>优惠券<span class="rt">3 张 ›</span></div>
+        <div class="mi"><span class="ic">📍</span>收货地址<span class="rt">›</span></div>
+        <div class="mi" data-go="s-notify"><span class="ic">🔔</span>消息通知<span class="rt">›</span></div>
+        <div class="mi" data-go="s-support"><span class="ic">💬</span>客服与帮助<span class="rt">›</span></div>
+      </div>
+      <div class="placeholder-note">底部标签栏见下方</div>
+    </section>
+
+    <!-- ================= 13. 消息通知 ================= -->
+    <section class="screen" id="s-notify">
+      <div class="navbar"><span class="back" data-go="s-home">‹</span><span class="title">消息通知</span><span class="right">全部已读</span></div>
+      <div class="msg"><div class="ic">🚚</div><div><div class="tt">设备已发出</div><div class="dd">佳能 EOS R5 已发货，预计 14:00 送达</div><div class="tiny muted" style="margin-top:4px">10-01 10:20</div></div></div>
+      <div class="msg"><div class="ic">⏰</div><div><div class="tt">归还提醒</div><div class="dd">订单 RP202610010087 将于 2 天后到期</div><div class="tiny muted" style="margin-top:4px">10-01 09:00</div></div></div>
+      <div class="msg"><div class="ic">✅</div><div><div class="tt">免押授权成功</div><div class="dd">芝麻信用免押 ¥1500 已生效</div><div class="tiny muted" style="margin-top:4px">09-30 18:12</div></div></div>
+    </section>
+
+    <!-- ================= 14. 客服/反馈 ================= -->
+    <section class="screen" id="s-support">
+      <div class="navbar"><span class="back" data-go="s-home">‹</span><span class="title">客服与帮助</span></div>
+      <div class="card">
+        <div class="h3" style="margin-bottom:6px">常见问题</div>
+        <div class="faq" style="padding:12px 0">如何免押？<span>›</span></div>
+        <div class="faq" style="padding:12px 0">租金如何计算？<span>›</span></div>
+        <div class="faq" style="padding:12px 0">设备损坏怎么赔？<span>›</span></div>
+        <div class="faq" style="padding:12px 0;border:none">押金多久退还？<span>›</span></div>
+      </div>
+      <div class="card">
+        <div class="h3">意见反馈</div>
+        <textarea class="field" style="margin-top:8px" placeholder="请描述你遇到的问题或建议…"></textarea>
+        <div class="upload-grid"><div class="upload"><span class="pl">📷</span>上传截图</div></div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="alert('已提交（原型演示）')">提交反馈</button>
+      </div>
+      <div class="card tight" style="text-align:center"><span class="muted small">在线客服 · 9:00–21:00</span></div>
+    </section>
+
+    <!-- ================= 底部标签栏 ================= -->
+    <nav class="tabbar" id="tabbar" style="display:none">
+      <div class="tab" data-go="s-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>首页</div>
+      <div class="tab" data-go="s-list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>分类</div>
+      <div class="tab" data-go="s-orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12l1 5H5z"/><path d="M5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7"/></svg>订单</div>
+      <div class="tab" data-go="s-mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>我的</div>
+    </nav>
+  </div>
+</div>
+
+<!-- 评审跳转 -->
+<div class="jump">
+  评审跳转：
+  <select id="jumpSel">
+    <option value="s-login">1 登录</option><option value="s-home">2 首页</option>
+    <option value="s-list">3 分类/列表</option><option value="s-detail">4 商品详情</option>
+    <option value="s-checkout">5 下单确认</option><option value="s-verify">6 实名/免押</option>
+    <option value="s-pay">7 支付</option><option value="s-orders">8 订单列表</option>
+    <option value="s-orderdetail">9 订单详情</option><option value="s-returnapply">10 归还申请</option>
+    <option value="s-returncheck">11 归还验收/定损</option><option value="s-mine">12 我的</option>
+    <option value="s-notify">13 消息通知</option><option value="s-support">14 客服/反馈</option>
+  </select>
+</div>
+
+<script>
+const TAB_SCREENS = ["s-home","s-list","s-orders","s-mine"];
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===id));
+  const el = document.getElementById(id);
+  if(el) el.scrollTop = 0;
+  document.getElementById("tabbar").style.display = TAB_SCREENS.includes(id) ? "flex" : "none";
+  document.querySelectorAll(".tabbar .tab").forEach(t=>t.classList.toggle("active", t.dataset.go===id));
+  document.getElementById("jumpSel").value = id;
+}
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-go]");
+  if(t){ show(t.dataset.go); }
+});
+document.getElementById("jumpSel").addEventListener("change", e=>show(e.target.value));
+// 交互：单选卡片
+document.addEventListener("click", e=>{
+  const opt = e.target.closest(".option");
+  if(opt){ opt.parentElement.querySelectorAll(".option").forEach(o=>o.classList.remove("active")); opt.classList.add("active"); }
+});
+show("s-login");
+</script>
+</body>
+</html>

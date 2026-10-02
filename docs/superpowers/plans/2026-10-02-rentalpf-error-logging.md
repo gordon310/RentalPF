@@ -10,6 +10,8 @@
 
 **Spec:** `docs/办公设备租赁平台开发需求文档_V0.2.md`（第 12 章 REQ-ERR-01~08）
 
+> **代码根目录约定**：本计划路径中的 `rentalpf/` 一律指仓库根下的 **`server/`**（即 `cd rentalpf` = `cd server`，`git add rentalpf` = `git add server`）。执行前请据此替换。
+
 **前置依赖:** `docs/superpowers/plans/2026-10-02-rentalpf-phase1-backend-foundation.md` 的 **Task 1**（Django 项目脚手架、`config.settings`、应用注册、pytest 配置）必须先完成。
 
 ## Global Constraints

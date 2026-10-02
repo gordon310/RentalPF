@@ -10,6 +10,8 @@
 
 **Spec:** `docs/办公设备租赁平台开发需求文档_V0.2.md`
 
+> **代码根目录约定**：本计划路径中的 `rentalpf/` 一律指仓库根下的 **`server/`**（即 `cd rentalpf` = `cd server`，`git add rentalpf` = `git add server`）。执行前请据此替换。
+
 ## Global Constraints
 
 - Python 版本：3.12；Django `>=5.1,<5.2`；DRF `>=3.15`。
