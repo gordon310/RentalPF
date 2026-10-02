@@ -1,7 +1,14 @@
-# RentalPF C 端小程序 · UI 设计规范 V0.1
+# RentalPF C 端小程序 · UI 设计规范 V0.2
 
-> 依据 `gordondev/uigd.md` 的 UI/UX 优化规范产出。适用于一期 C 端微信小程序（14 屏）。
-> 原型：`prototype/index.html`（可点击，托管于 `https://gordon310.github.io/RentalPF/prototype/`）
+> 依据 `gordondev/uigd.md` + **`ui-ux-pro-max`**（设计智能）+ **`frontend-app-builder`**（前端构建标准）产出。
+> 适用于一期 C 端微信小程序（15 屏，汽车 + 设备）。
+> 设计系统令牌（Source of Truth）：`design-system/rentalpf/MASTER.md`（工具生成，品牌主色已覆盖为 `#2563EB`）。
+> 原型：`prototype/index.html` → `https://gordon310.github.io/RentalPF/prototype/`
+
+## 技能应用记录
+- **ui-ux-pro-max**：检索并采纳「移动端触控 44pt/48dp、相邻目标间距 ≥8px、表单必须有 label、提交需 loading→success/error、空状态与骨架屏、焦点态可见、禁止 emoji 当图标」等规则；`--design-system` 生成并持久化设计系统。
+- **frontend-app-builder**：以「设计系统 → 忠实实现 → 浏览器核对」流程执行；统一 SVG 图标、容器纪律、状态完整、可访问性；禁用未获批准的多余装饰。
+- **未使用 Image Gen**：本环境无图像生成/看图工具，故以「设计令牌 + SVG + 真实界面」方式落地；后续可在有图像能力时补充概念图。
 
 ## 0. 理解与假设
 
@@ -62,6 +69,8 @@
 - **字体**：`-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei"`；字号 24/20/16/14/12/11；字重 400/500/600/700；行高 1.5–1.6。
 - **间距**：4 / 8 / 12 / 16 / 24 / 32（8pt 网格）。
 - **圆角**：8（小）/ 12（中，按钮）/ 16（卡片）/ 999（胶囊）。
+- **状态色**：成功 `#16A34A`、警告 `#D97706`、危险/价格 `#DC2626`。
+- **交互**：`:focus-visible` 2px 主色描边；按压 `scale(.98)`；过渡 150–300ms；`prefers-reduced-motion` 降级。
 - **阴影**：`0 1px 2px rgba(0,0,0,.04)`（卡片）、`0 8px 24px rgba(0,0,0,.10)`（浮层/手机壳）。
 - **动效**：150–250ms，`cubic-bezier(.2,.8,.2,1)`；按钮按压 `scale(.98)`；列表/详情用骨架屏。
 
@@ -97,6 +106,12 @@
 - [ ] 空/加载/错误状态在列表与订单页有设计
 - [ ] 全面屏底部安全区适配，操作条不被遮挡
 - [ ] 首页广告 Banner 为 slide 轮播，圆点与滑动同步，可点击跳转，**后台可配置**，未配置时不展示
+- [ ] **全程无 emoji 当图标**，图标统一为同一套 SVG（stroke=currentColor、24 视盒）
+- [ ] 所有可点元素热区 ≥44×44px，相邻间距 ≥8px
+- [ ] 表单均为「label + input」（非 placeholder-only）
+- [ ] 主操作按钮有 loading → 成功/失败反馈，防重复提交
+- [ ] 列表/订单具备空状态、加载（骨架屏）与失败重试设计
+- [ ] 焦点态可见（`:focus-visible`）；`prefers-reduced-motion` 生效
 - [ ] 文案无歧义、无占位符（"TBD"）
 
 ## 9. 可选代码 / Diff
